@@ -8,16 +8,16 @@
 #include "../../FE_Assemblers_Solvers/Include/Matrix_Assembler.h"
 #include "../../Global_Utilities/Include/Solver_Definitions.h"
 
-#include "IFD_Data.h"
+#include "../../Integrated_Functional_Depth/Include/IFD_Data.h"
 
-template<Uint ORDER, Uint mydim, Uint ndim>
+template<UInt ORDER, UInt mydim, UInt ndim>
 SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh)
 {
 	// Construct data object
 	IFDData data(Rdata, Rorder, Rweights);
 	
 	// Construct mesh object
-	MeshHandler<ORDER, mydim, ndim> mesh(Rmesh, Rsearch);
+	MeshHandler<ORDER, mydim, ndim> mesh(Rmesh, INTEGER(Rsearch)[0]);
 
 	// Copy result in R memory
 	SEXP result = NILSXP;

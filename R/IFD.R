@@ -1,4 +1,4 @@
-# still missing R documentation
+#' still missing R documentation
 #' @param 
 #' @return 
 #' @description 
@@ -22,7 +22,7 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree")
     stop('Unknown mesh class')
   }
 
-    # Search algorithm
+  # Search algorithm
   if(search=="naive"){
     search=1
   }else if(search=="tree"){
@@ -35,7 +35,6 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree")
     stop("'search' must must belong to the following list: 'naive', 'tree' or 'walking'.")
   }
 
-  
   ###################### Checking parameters, sizes and conversion #################################
   checkParametersIFD(data, FEMbasis, weights, search) 
   
@@ -43,10 +42,8 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree")
   data = as.matrix(data)
   weights = as.vector(weights)
   
-  
   checkParametersSizeIFD(data, FEMbasis, weights) 
   ###################### End checking parameters, sizes and conversion #############################
-  
   
   ###################### C++ Code Execution #########################################################
   bigsol = NULL

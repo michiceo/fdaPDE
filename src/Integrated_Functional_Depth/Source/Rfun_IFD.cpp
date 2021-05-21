@@ -34,17 +34,17 @@ extern "C" {
 
 
     	if(order== 1 && mydim==2 && ndim==2)
-    	   return(IFD_skeleton<1, 2, 2>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
+    	   return(IFD_Skeleton<1, 2, 2>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
         else if(order== 2 && mydim==2 && ndim==2)
-    	   return(IFD_skeleton<2, 2, 2>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
+    	   return(IFD_Skeleton<2, 2, 2>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
     	else if(order== 1 && mydim==2 && ndim==3)
-    	   return(IFD_skeleton<1, 2, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
+    	   return(IFD_Skeleton<1, 2, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
     	else if(order== 2 && mydim==2 && ndim==3)
-    	   return(IFD_skeleton<2, 2, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
+    	   return(IFD_Skeleton<2, 2, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
     	else if(order == 1 && mydim==3 && ndim==3)
-    	   return(IFD_skeleton<1, 3, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
+    	   return(IFD_Skeleton<1, 3, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
     	else if(order == 2 && mydim==3 && ndim==3)
-           return(IFD_skeleton<2, 3, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
+           return(IFD_Skeleton<2, 3, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
 
         return(NILSXP);
     }

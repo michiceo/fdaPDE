@@ -46,13 +46,13 @@ public:
 	//! A const method to access the data.
 	const MatrixXr & data() const {return data_;}
 	//! A method to access a specific function.
-	VectorXr & dataC(UInt i) {return data_.col(i);}
+	VectorXr dataC(UInt i) {return data_.col(i);}
 	//! A const method to access a specific function.
-	const VectorXr & dataC(UInt i) const {return data_.col(i);}
+	const VectorXr dataC(UInt i) const {return data_.col(i);}
 	//! A method to access a specific row of the data matrix (evaluations at a specific point).
-	VectorXr & dataR(UInt i) {return data_.row(i);}
+	VectorXr dataR(UInt i) {return data_.row(i);}
 	//! A const method to access a specific row of the data matrix (evaluations at a specific point).
-	const VectorXr & dataR(UInt i) const {return data_.row(i);}
+	const VectorXr dataR(UInt i) const {return data_.row(i);}
 	// ! A method to access the number of rows of the data matrix.
 	UInt dataRows() const {return data_.rows();}
 	// ! A method to access the number of columns of the data matrix.
