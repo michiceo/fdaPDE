@@ -1,10 +1,23 @@
-#' still missing R documentation
-#' @param 
-#' @return 
-#' @description 
-#' @usage 
+#' Integrated functional depth computation for complex multidimensional functional data
+#' @param data A matrix of dimensions #mesh nodes-by-#functions. Data are functions:
+#' each row corresponds to the evaluations of the functions at one specific node of the mesh, 
+#' each column corresponds to the evaluation of a specific function at all the mesh nodes.
+#' @param FEMbasis A \code{FEMbasis} object describing the Finite Element basis,
+#' as created by \code{\link{create.FEM.basis}}.
+#' @param weights A vector of length #\code{nodes} of the mesh. It corresponds to the
+#' weights for the integration. The sum of the elements in the vector MUST be equal to 1.
+#' @param search a flag to decide the search algorithm type (tree or naive or walking search algorithm).
+#' @return A list with the following variables:
+#' \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
+#' \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
+#' \item{\code{weights}}{Weights given as input in IFD.FEM().}
+#' @description This function implements the formula to compute the integrated functional depth of a set of complex multidimensional functional data.
+#' The computation relies only on the C++ implementation of the algorithm.
+#' @usage IFD.FEM(data, FEMbasis, weights, search = "tree")
 #' @export
 #' @examples
+#' library(fdaPDE)
+#' ## example still to be implemented
 
 #(SEXP Rdata, SEXP Rmesh, SEXP Rorder, SEXP Rmydim, SEXP Rndim, SEXP Rweights, SEXP Rsearch)
 IFD.FEM <- function(data, FEMbasis, weights, search = "tree") 
