@@ -33,20 +33,20 @@ extern "C" {
         UInt ndim  = INTEGER(Rndim)[0];
 
 
-    	if(order== 1 && mydim==2 && ndim==2)
-    	   return(IFD_Skeleton<1, 2, 2>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
-        else if(order== 2 && mydim==2 && ndim==2)
-    	   return(IFD_Skeleton<2, 2, 2>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
-    	else if(order== 1 && mydim==2 && ndim==3)
-    	   return(IFD_Skeleton<1, 2, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
-    	else if(order== 2 && mydim==2 && ndim==3)
-    	   return(IFD_Skeleton<2, 2, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
-    	else if(order == 1 && mydim==3 && ndim==3)
-    	   return(IFD_Skeleton<1, 3, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
-    	else if(order == 2 && mydim==3 && ndim==3)
-           return(IFD_Skeleton<2, 3, 3>(Rdata, Rorder, Rweights, Rmesh, Rsearch));
-
-        return(NILSXP);
+	if(order== 1 && mydim==2 && ndim==2)
+		return(IFD_Skeleton<1, 2, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh));
+	else if(order== 2 && mydim==2 && ndim==2)
+		return(IFD_Skeleton<2, 2, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh));
+	else if(order== 1 && mydim==2 && ndim==3)
+		return(IFD_Skeleton<1, 2, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh));
+	else if(order== 2 && mydim==2 && ndim==3)
+		return(IFD_Skeleton<2, 2, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh));
+	else if(order == 1 && mydim==3 && ndim==3)
+		return(IFD_Skeleton<1, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh));
+	else if(order == 2 && mydim==3 && ndim==3)
+		return(IFD_Skeleton<2, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh));
+	
+	return(NILSXP);
     }
 
 }
