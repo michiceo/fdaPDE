@@ -20,14 +20,10 @@ checkParametersIFD <- function(data, FEMbasis, weights, search)
       if(weights[i]<=0)
         stop("'weights' has to have positive members.")
     }
+    if (sum(weights) != 1)
+      stop("'weights' must sum to 1.")
   }
-  
-  if (is.null(direction_method)) 
-    stop("'direction_method' is required;  is NULL.")
-  else{
-    if(direction_method!="Gradient" && direction_method!="BFGS")
-      stop("'direction_method' needs to be either 'Gradient' or 'BFGS'.")
-  }
+
 
   if(!is.numeric(search))
     stop("'search' needs to be an integer.")
