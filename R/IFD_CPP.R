@@ -1,4 +1,4 @@
-CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
+CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
 {
   # Indexes in C++ starts from 0, in R from 1, opportune transformation
 
@@ -17,9 +17,11 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
   storage.mode(ndim) <- "integer"
   storage.mode(mydim) <- "integer"
   storage.mode(search) <- "integer"
+  depth_choice <- as.character(depth_choice)
+  storage.mode(depth_choice) <- "character"
 
   ## Call C++ function
-  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search,
+  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search, depth_choice,
                   PACKAGE = "fdaPDE")
 
   ## Reset them correctly
@@ -31,7 +33,7 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
 }
 
 
-CPP_FEM.manifold.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
+CPP_FEM.manifold.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
 {
   # Indexes in C++ starts from 0, in R from 1, opportune transformation
   
@@ -50,9 +52,11 @@ CPP_FEM.manifold.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
   storage.mode(ndim) <- "integer"
   storage.mode(mydim) <- "integer"
   storage.mode(search) <- "integer"
+  depth_choice <- as.character(depth_choice)
+  storage.mode(depth_choice) <- "character"
   
   ## Call C++ function
-  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search,
+  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search, depth_choice,
                   PACKAGE = "fdaPDE")
   
   ## Reset them correctly
@@ -64,7 +68,7 @@ CPP_FEM.manifold.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
 }
 
 
-CPP_FEM.volume.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
+CPP_FEM.volume.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
 {
   
   # Indexes in C++ starts from 0, in R from 1, opportune transformation
@@ -84,8 +88,10 @@ CPP_FEM.volume.IFD <- function(data, FEMbasis, ndim, mydim, weights, search)
   storage.mode(ndim) <- "integer"
   storage.mode(mydim) <- "integer"
   storage.mode(search) <- "integer"
+  depth_choice <- as.character(depth_choice)
+  storage.mode(depth_choice) <- "character"
   
-  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search,
+  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search, depth_choice,
                   PACKAGE = "fdaPDE")
   
   ## Reset them correctly

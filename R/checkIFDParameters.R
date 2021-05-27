@@ -1,4 +1,4 @@
-checkParametersIFD <- function(data, FEMbasis, weights, search) 
+checkParametersIFD <- function(data, FEMbasis, weights, search, depth_choice) 
 {
   #################### Parameter Check #########################
   if (is.null(data)) 
@@ -28,6 +28,8 @@ checkParametersIFD <- function(data, FEMbasis, weights, search)
   if(!is.numeric(search))
     stop("'search' needs to be an integer.")
   
+  if (is.null(depth_choice)) 
+    stop("'depth_choice' is required;  is NULL.")
   
 }
 

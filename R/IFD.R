@@ -7,20 +7,22 @@
 #' @param weights A vector of length #\code{nodes} of the mesh. It corresponds to the
 #' weights for the integration. The sum of the elements in the vector MUST be equal to 1.
 #' @param search a flag to decide the search algorithm type (tree or naive or walking search algorithm).
+#' @param depth_choice String. This parameter specifies the choice of the depth.
 #' @return A list with the following variables:
 #' \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
 #' \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
 #' \item{\code{weights}}{Weights given as input in IFD.FEM().}
+#' \item{\code{depth}}{Depth computed.}
 #' @description This function implements the formula to compute the integrated functional depth of a set of complex multidimensional functional data.
 #' The computation relies only on the C++ implementation of the algorithm.
-#' @usage IFD.FEM(data, FEMbasis, weights, search = "tree")
+#' @usage IFD.FEM(data, FEMbasis, weights, search = "tree", depth_choice)
 #' @export
 #' @examples
 #' library(fdaPDE)
 #' ## example still to be implemented
 
-#(SEXP Rdata, SEXP Rmesh, SEXP Rorder, SEXP Rmydim, SEXP Rndim, SEXP Rweights, SEXP Rsearch)
-IFD.FEM <- function(data, FEMbasis, weights, search = "tree") 
+#(SEXP Rdata, SEXP Rmesh, SEXP Rorder, SEXP Rmydim, SEXP Rndim, SEXP Rweights, SEXP Rsearch, SEXP Rdepth)
+IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice) 
 { 
   if(class(FEMbasis$mesh) == "mesh.2D"){
     ndim = 2
@@ -49,7 +51,7 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree")
   }
 
   ###################### Checking parameters, sizes and conversion #################################
-  checkParametersIFD(data, FEMbasis, weights, search) 
+  checkParametersIFD(data, FEMbasis, weights, search, depth_choice) 
   
   ## Coverting to format for internal usage
   data = as.matrix(data)
@@ -62,14 +64,14 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree")
   bigsol = NULL
   if(class(FEMbasis$mesh) == 'mesh.2D'){	  
     
-    bigsol = CPP_FEM.IFD(data, FEMbasis, ndim, mydim, weights, search)
+    bigsol = CPP_FEM.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
     
   } else if(class(FEMbasis$mesh) == 'mesh.2.5D'){
     
-    bigsol = CPP_FEM.manifold.IFD(data, FEMbasis, ndim, mydim, weights, search)
+    bigsol = CPP_FEM.manifold.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
     
   } else if(class(FEMbasis$mesh) == 'mesh.3D'){
-    bigsol = CPP_FEM.volume.IFD(data, FEMbasis, ndim, mydim, weights, search)
+    bigsol = CPP_FEM.volume.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
   }
   
   ###################### Collect Results ############################################################  
@@ -77,7 +79,8 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree")
   data    = bigsol[[1]]
   order   = bigsol[[2]]
   weights = bigsol[[3]]
+  depth   = bigsol[[4]]
   
-  reslist = list(data = data, order = order, weights = weights)
+  reslist = list(data = data, order = order, weights = weights, depth = depth)
   return(reslist)
 }

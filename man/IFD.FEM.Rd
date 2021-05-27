@@ -4,7 +4,7 @@
 \alias{IFD.FEM}
 \title{Integrated functional depth computation for complex multidimensional functional data}
 \usage{
-IFD.FEM(data, FEMbasis, weights, search = "tree")
+IFD.FEM(data, FEMbasis, weights, search = "tree", depth_choice)
 }
 \arguments{
 \item{data}{A matrix of dimensions #mesh nodes-by-#functions. Data are functions: each row corresponds to the evaluations of the functions at one specific node of the mesh, 
@@ -15,12 +15,15 @@ each column corresponds to the evaluation of a specific function at all the mesh
 \item{weights}{A vector of length #\code{nodes} of the mesh. It corresponds to the weights for the integration. The sum of the elements in the vector MUST be equal to 1.}
 
 \item{search}{a flag to decide the search algorithm type (tree or naive or walking search algorithm).}
+
+\item{depth_choice}{String. This parameter specifies the choice of the depth.}
 }
 \value{
 A list with the following variables:
 \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
 \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
 \item{\code{weights}}{Weights given as input in IFD.FEM().}
+\item{\code{depth}}{Depth computed.}
 }
 \description{
 This function implements the formula to compute the integrated functional depth of a set of complex multidimensional functional data.
