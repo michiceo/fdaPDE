@@ -9,6 +9,7 @@
 
 #include "../Include/IFD_Data.h"
 #include "../Include/Depth.h"
+#include "../Include/Depth_Factory.h"
 
 extern "C" {
 

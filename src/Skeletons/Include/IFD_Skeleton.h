@@ -10,6 +10,7 @@
 
 #include "../../Integrated_Functional_Depth/Include/IFD_Data.h"
 #include "../../Integrated_Functional_Depth/Include/Depth.h"
+#include "../../Integrated_Functional_Depth/Include/Depth_Factory.h"
 
 template<UInt ORDER, UInt mydim, UInt ndim>
 SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
@@ -30,7 +31,7 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 	SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, data.dataRows(), data.dataCols()));
 	SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
 	SET_VECTOR_ELT(result, 2, Rf_allocVector(REALSXP, data.getWeights().size()));
-	SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, depth_computed.size());
+	SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, depth_computed.size()));
 
 	Real *rans = REAL(VECTOR_ELT(result, 0));
 	for(UInt j = 0; j < data.dataCols(); j++)
@@ -60,4 +61,5 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 };
 
 #endif /* __IFD_SKELETON_H__ */
+
 

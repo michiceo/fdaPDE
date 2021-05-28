@@ -25,13 +25,13 @@ protected:
 	//! A matrix of data
 	MatrixXr m_;
 	// number of functions
-	const Uint n_ = m_.cols();
+	const UInt n_ = m_.cols();
 	// number of points
-	const Uint p_ = m_.rows();
+	const UInt p_ = m_.rows();
 
 };
 
-/*!  @brief A class dealing with the computation of the Modified Half Region Depth.
+/*! @brief A class dealing with the computation of the Modified Half Region Depth.
 */
 class MHRD: public Depth{
 
@@ -43,7 +43,7 @@ public:
 
 private:
 	//! A method to perform the ranking of the elements in the vector.
-	const std::vector<Eigen::Index> ranking(const VectorXr& v);
+	const VectorXi ranking(const VectorXr& v) const;
 
 };
 
