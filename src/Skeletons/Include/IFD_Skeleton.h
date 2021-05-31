@@ -8,51 +8,45 @@
 #include "../../FE_Assemblers_Solvers/Include/Matrix_Assembler.h"
 #include "../../Global_Utilities/Include/Solver_Definitions.h"
 
-#include "../../Integrated_Functional_Depth/Include/IFD_Data.h"
-#include "../../Integrated_Functional_Depth/Include/Depth.h"
-#include "../../Integrated_Functional_Depth/Include/Depth_Factory.h"
+#include "../../Integrated_Functional_Depth/Include/Data_Problem.h"
 
 template<UInt ORDER, UInt mydim, UInt ndim>
 SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
 {
-	// Construct data object
-	IFDData data(Rdata, Rorder, Rweights);
+	// Construct data problem object
+	DataProblem<ORDER, mydim, ndim> dataProblem(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice);
 	
-	// Construct mesh object
-	MeshHandler<ORDER, mydim, ndim> mesh(Rmesh, INTEGER(Rsearch)[0]);
-	
-	// Construct depth object
-	std::shared_ptr<Depth> depth = Depth_factory::createDepth(data.data(), depth_choice);
-	const VectorXr depth_computed = depth->compute_depth();
+	// Compute the IFD of the data
+	const VectorXr ifd = dataProblem.FEintegrate_depth(dataProblem.data());
 
 	// Copy result in R memory
 	SEXP result = NILSXP;
 	result = PROTECT(Rf_allocVector(VECSXP, 4));
-	SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, data.dataRows(), data.dataCols()));
+	SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
 	SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
-	SET_VECTOR_ELT(result, 2, Rf_allocVector(REALSXP, data.getWeights().size()));
-	SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, depth_computed.size()));
+	SET_VECTOR_ELT(result, 2, Rf_allocVector(REALSXP, dataProblem.getWeights().size()));
+	SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, ifd.size()));
 
 	Real *rans = REAL(VECTOR_ELT(result, 0));
-	for(UInt j = 0; j < data.dataCols(); j++)
+	for(UInt j = 0; j < dataProblem.dataCols(); j++)
 	{
-		for(UInt i = 0; i < data.dataRows(); i++)
-			rans[i + data.dataRows()*j] = data.data()(i, j);
+		for(UInt i = 0; i < dataProblem.dataRows(); i++)
+			rans[i + dataProblem.dataRows()*j] = dataProblem.data()(i, j);
 	}
 
 	int *rans1 = INTEGER(VECTOR_ELT(result, 1));
-	*rans1 = data.getOrder();
+	*rans1 = dataProblem.getOrder();
 
 	Real *rans2 = REAL(VECTOR_ELT(result, 2));
-	for(UInt i = 0; i < data.getWeights().size(); i++)
+	for(UInt i = 0; i < dataProblem.getWeights().size(); i++)
 	{
-		rans2[i] = data.getWeights()[i];
+		rans2[i] = dataProblem.getWeights()[i];
 	}
 	
 	Real *rans3 = REAL(VECTOR_ELT(result, 3));
-	for(UInt i = 0; i < depth_computed.size(); i++)
+	for(UInt i = 0; i < ifd.size(); i++)
 	{
-		rans3[i] = depth_computed[i];
+		rans3[i] = ifd[i];
 	}
 
 	UNPROTECT(1);
@@ -61,5 +55,4 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 };
 
 #endif /* __IFD_SKELETON_H__ */
-
 
