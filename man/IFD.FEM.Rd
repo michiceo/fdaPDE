@@ -23,6 +23,7 @@ A list with the following variables:
 \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
 \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
 \item{\code{weights}}{Weights given as input in IFD.FEM().}
+\item{\code{ifd}}{IFD computed.}
 \item{\code{depth}}{Depth computed.}
 }
 \description{

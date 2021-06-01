@@ -5,7 +5,7 @@ template<UInt ORDER, UInt mydim, UInt ndim>
 DataProblem<ORDER, mydim, ndim>::DataProblem(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string& d):
 ifdData_(Rdata, Rorder, Rweights), mesh_(Rmesh, INTEGER(Rsearch)[0]), d_tag(d)
 {
-	// depth_ = Depth_factory::createDepth(this->data(), d_tag);
+	depth_ = Depth_factory::createDepth(this->data(), d_tag);
 	fillPsiQuad();
 }
 

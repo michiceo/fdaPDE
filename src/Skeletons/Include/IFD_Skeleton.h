@@ -9,6 +9,7 @@
 #include "../../Global_Utilities/Include/Solver_Definitions.h"
 
 #include "../../Integrated_Functional_Depth/Include/Data_Problem.h"
+#include "../../Integrated_Functional_Depth/Include/FE_Integrated_Functional_Depth.h"
 
 template<UInt ORDER, UInt mydim, UInt ndim>
 SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
@@ -16,16 +17,24 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 	// Construct data problem object
 	DataProblem<ORDER, mydim, ndim> dataProblem(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice);
 	
-	// Compute the IFD of the data
-	const VectorXr ifd = dataProblem.FEintegrate_depth(dataProblem.data());
+	// Construct FEIFD object
+	FEIFD<ORDER, mydim, ndim> feifd(dataProblem);
 
+	// Perform the whole task
+	feifd.apply();
+	
+	// Collect results
+	VectorXr ifd = feifd.getIFD();
+	VectorXr depth = feifd.getDepth();
+	
 	// Copy result in R memory
 	SEXP result = NILSXP;
-	result = PROTECT(Rf_allocVector(VECSXP, 4));
+	result = PROTECT(Rf_allocVector(VECSXP, 5));
 	SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
 	SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
 	SET_VECTOR_ELT(result, 2, Rf_allocVector(REALSXP, dataProblem.getWeights().size()));
 	SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, ifd.size()));
+	SET_VECTOR_ELT(result, 4, Rf_allocVector(REALSXP, depth.size()));
 
 	Real *rans = REAL(VECTOR_ELT(result, 0));
 	for(UInt j = 0; j < dataProblem.dataCols(); j++)
@@ -47,6 +56,12 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 	for(UInt i = 0; i < ifd.size(); i++)
 	{
 		rans3[i] = ifd[i];
+	}
+	
+	Real *rans4 = REAL(VECTOR_ELT(result, 4));
+	for(UInt i = 0; i < depth.size(); i++)
+	{
+		rans4[i] = depth[i];
 	}
 
 	UNPROTECT(1);

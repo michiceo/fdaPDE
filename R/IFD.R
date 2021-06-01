@@ -12,6 +12,7 @@
 #' \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
 #' \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
 #' \item{\code{weights}}{Weights given as input in IFD.FEM().}
+#' \item{\code{ifd}}{IFD computed.}
 #' \item{\code{depth}}{Depth computed.}
 #' @description This function implements the formula to compute the integrated functional depth of a set of complex multidimensional functional data.
 #' The computation relies only on the C++ implementation of the algorithm.
@@ -21,7 +22,6 @@
 #' library(fdaPDE)
 #' ## example still to be implemented
 
-#(SEXP Rdata, SEXP Rmesh, SEXP Rorder, SEXP Rmydim, SEXP Rndim, SEXP Rweights, SEXP Rsearch, SEXP Rdepth)
 IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice) 
 { 
   if(class(FEMbasis$mesh) == "mesh.2D"){
@@ -79,8 +79,9 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   data    = bigsol[[1]]
   order   = bigsol[[2]]
   weights = bigsol[[3]]
-  depth   = bigsol[[4]]
+  ifd     = bigsol[[4]]
+  depth   = bigsol[[5]]
   
-  reslist = list(data = data, order = order, weights = weights, depth = depth)
+  reslist = list(data = data, order = order, weights = weights, ifd = ifd, depth = depth)
   return(reslist)
 }

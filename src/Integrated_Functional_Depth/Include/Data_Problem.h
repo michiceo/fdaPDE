@@ -20,7 +20,7 @@ private:
 	static constexpr UInt EL_NNODES = how_many_nodes(ORDER, mydim);
 	IFDData ifdData_; // for R/C++ interface
 	MeshHandler<ORDER, mydim, ndim> mesh_;
-	// std::shared_ptr<Depth> depth_;
+	std::shared_ptr<Depth> depth_;
 	std::string d_tag; // tag in order to choose the depth
 	Eigen::Matrix<Real, Integrator::NNODES, EL_NNODES> PsiQuad_;
 
@@ -50,8 +50,8 @@ public:
 	//! A method returning the weights for the integration. It calls the same method of IFDData class.
 	inline const VectorXr & getWeights() const {return ifdData_.getWeights();}
 	//! A method returning the depth of the data (no integration).
-	// inline const VectorXr getDepth() const {return depth_->compute_depth();}
-	// inline const VectorXr getDepth(UInt i) const {return depth_->compute_depth(i);}
+	inline const VectorXr getDepth() const {return depth_->compute_depth();}
+	inline const VectorXr getDepth(UInt i) const {return depth_->compute_depth(i);}
 
 	// Getters for mesh
 	//! A method returning the mesh.
