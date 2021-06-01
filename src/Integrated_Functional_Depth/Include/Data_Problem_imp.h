@@ -34,7 +34,7 @@ DataProblem<ORDER, mydim, ndim>::FEintegrate_depth(const MatrixXr& X) const
 		
 		Eigen::Matrix<Real, EL_NNODES, 1> sub_w;
     		for(UInt i = 0; i < EL_NNODES; ++i){
-			sub_w[i] = this->getWeights()[tri_activated[i].getId()];
+		  sub_w[i] = this->getWeights()[tri_activated[i].getId()];
 		}
 
 		for(Eigen::Index j=0; j < X.cols(); ++j){
@@ -54,9 +54,12 @@ DataProblem<ORDER, mydim, ndim>::FEintegrate_depth(const MatrixXr& X) const
 
 		depth_cap = Depth_factory::createDepth(X_cap, d_tag);
 		Eigen::Matrix<Real, Integrator::NNODES, 1> weights = (PsiQuad_*sub_w).array();
+		
+		Eigen::DiagonalMatrix<Real, Integrator::NNODES, Integrator::NNODES> weighdiag;
+		weighdiag.diagonal() = weights;
 
 		for(Eigen::Index i = 0; i<X.cols(); ++i)
-			total_sum[i] += depth_cap->compute_depth()[i] * weights.dot(EigenMap2WEIGHTS(&Integrator::WEIGHTS[0])) * tri_activated.getMeasure();
+			total_sum[i] += ( weighdiag * depth_cap->compute_depth(i) ).dot(EigenMap2WEIGHTS(&Integrator::WEIGHTS[0])) * tri_activated.getMeasure();
 	}
 
 	return total_sum;

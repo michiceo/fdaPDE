@@ -50,25 +50,26 @@ public:
 	//! A method returning the weights for the integration. It calls the same method of IFDData class.
 	inline const VectorXr & getWeights() const {return ifdData_.getWeights();}
 	//! A method returning the depth of the data (no integration).
-	// inline const VectorXr & getDepth() const {return depth_;}
+	// inline const VectorXr getDepth() const {return depth_->compute_depth();}
+	// inline const VectorXr getDepth(UInt i) const {return depth_->compute_depth(i);}
 
-    // Getters for mesh
-    //! A method returning the mesh.
+	// Getters for mesh
+	//! A method returning the mesh.
 	inline const MeshHandler<ORDER, mydim, ndim>& getMesh() const {return mesh_;}
-    // Getter for specific mesh features
-    //! A method returning the number of mesh EL_NNODES. It calls the same method of MeshHandler class.
+	// Getter for specific mesh features
+	//! A method returning the number of mesh EL_NNODES. It calls the same method of MeshHandler class.
 	inline UInt getNumNodes() const {return mesh_.num_nodes();}
-    //! A method returning the number of mesh elements. It calls the same method of MeshHandler class.
+	//! A method returning the number of mesh elements. It calls the same method of MeshHandler class.
 	inline UInt getNumElements() const {return mesh_.num_elements();}
-    //! A method returning a node. It calls the same method of MeshHandler class.
+	//! A method returning a node. It calls the same method of MeshHandler class.
 	inline Point<ndim> getPoint(Id id) const {return mesh_.getPoint(id);}
-    //! A method returning an element. It calls the same method of MeshHandler class.
+	//! A method returning an element. It calls the same method of MeshHandler class.
 	inline Element<EL_NNODES,mydim,ndim> getElement(Id id) const {return mesh_.getElement(id);}
-    //! A method returning the element in which the point in input is located. It calls the same method of MeshHandler class.
+	//! A method returning the element in which the point in input is located. It calls the same method of MeshHandler class.
 	inline Element<EL_NNODES,mydim,ndim> findLocation(const Point<ndim>& point) const {return mesh_.findLocation(point);}
 
-    // Getters for matrices
-    //! A method returning the PsiQuad_ matrix.
+	// Getters for matrices
+	//! A method returning the PsiQuad_ matrix.
 	inline const Eigen::Matrix<Real, Integrator::NNODES, EL_NNODES>& getPsiQuad() const {return PsiQuad_;}
 };
 
