@@ -8,8 +8,8 @@
 #include "../../FE_Assemblers_Solvers/Include/Matrix_Assembler.h"
 #include "../../Global_Utilities/Include/Solver_Definitions.h"
 
-#include "../../Integrated_Functional_Depth/Include/Data_Problem.h"
-#include "../../Integrated_Functional_Depth/Include/FE_Integrated_Functional_Depth.h"
+#include "../../Integrated_Functional_Depth/Include/IFD_Data_Problem.h"
+#include "../../Integrated_Functional_Depth/Include/IFD_FE.h"
 
 template<UInt ORDER, UInt mydim, UInt ndim>
 SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
