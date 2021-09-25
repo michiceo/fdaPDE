@@ -33,6 +33,9 @@ public:
 
 	//! A method to compute the weighted integral of the depth referred to the data.
 	const VectorXr FEintegrate_depth(const MatrixXr& X) const;
+	
+	//! A method to compute the integral of the weights.
+	const Real FEintegral_weights() const;
 
 	// Getters
 	//! A method to access the data. It calls the same method of IFDData class.

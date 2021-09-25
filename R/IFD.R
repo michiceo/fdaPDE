@@ -4,8 +4,7 @@
 #' each column corresponds to the evaluation of a specific function at all the mesh nodes.
 #' @param FEMbasis A \code{FEMbasis} object describing the Finite Element basis,
 #' as created by \code{\link{create.FEM.basis}}.
-#' @param weights A vector of length #\code{nodes} of the mesh. It corresponds to the
-#' weights for the integration. The sum of the elements in the vector MUST be equal to 1.
+#' @param weights A weight function. The integral of the function MUST be equal to 1.
 #' @param search a flag to decide the search algorithm type (tree or naive or walking search algorithm).
 #' @param depth_choice String. This parameter specifies the choice of the depth.
 #' @return A list with the following variables:
@@ -51,7 +50,10 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   }
 
   ###################### Checking parameters, sizes and conversion #################################
-  checkParametersIFD(data, FEMbasis, weights, search, depth_choice) 
+  checkParametersIFD(data, FEMbasis, weights, search, depth_choice)
+  
+  # weights values for each point of the mesh
+  # w<-w_func(FEMbasis$mesh$nodes)
   
   ## Coverting to format for internal usage
   data = as.matrix(data)
@@ -81,6 +83,9 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   weights = bigsol[[3]]
   ifd     = bigsol[[4]]
   depth   = bigsol[[5]]
+  
+  if (ifd == 0. && depth==0.)
+    stop("integral of weight function != 1. Give another weight function.")
   
   reslist = list(data = data, order = order, weights = weights, ifd = ifd, depth = depth)
   return(reslist)

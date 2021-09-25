@@ -65,5 +65,30 @@ DataProblem<ORDER, mydim, ndim>::FEintegrate_depth(const MatrixXr& X) const
 	return total_sum;
 }
 
+template<UInt ORDER, UInt mydim, UInt ndim>
+const Real
+DataProblem<ORDER, mydim, ndim>::FEintegral_weights() const
+{
+	using EigenMap2WEIGHTS = Eigen::Map<const Eigen::Matrix<Real, Integrator::NNODES, 1>>;
+
+	Real total_sum = 0.;
+
+	for(UInt triangle = 0; triangle < mesh_.num_elements(); ++triangle){
+
+		Element<EL_NNODES, mydim, ndim> tri_activated = mesh_.getElement(triangle);
+		
+		Eigen::Matrix<Real, EL_NNODES, 1> sub_w;
+    		for(UInt i = 0; i < EL_NNODES; ++i){
+		  sub_w[i] = this->getWeights()[tri_activated[i].getId()];
+		}
+		
+		Eigen::Matrix<Real, Integrator::NNODES, 1> weights = (PsiQuad_*sub_w).array();
+		
+		total_sum += weights.dot(EigenMap2WEIGHTS(&Integrator::WEIGHTS[0])) * tri_activated.getMeasure();
+	}
+
+	return total_sum;
+}
+
 #endif /* __IFD_DATA_PROBLEM_IMP_H__ */
 
