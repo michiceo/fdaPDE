@@ -23,13 +23,14 @@ private:
 	std::shared_ptr<Depth> depth_;
 	std::string d_tag; // tag in order to choose the depth
 	Eigen::Matrix<Real, Integrator::NNODES, EL_NNODES> PsiQuad_;
+	VectorXr wfunction_;
 
 	//! A method to compute the matrix which evaluates the basis function at the quadrature Integrator::NNODES
 	void fillPsiQuad();
 
 public:
 	//! A constructor: it delegates IFDData and MeshHandler constructors.
-	DataProblem(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string& d);
+	DataProblem(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rwfunction, SEXP Rsearch, SEXP Rmesh, const std::string& d);
 
 	//! A method to compute the weighted integral of the depth referred to the data.
 	const VectorXr FEintegrate_depth(const MatrixXr& X) const;
@@ -52,6 +53,7 @@ public:
 	inline UInt getOrder() const {return ifdData_.getOrder();}
 	//! A method returning the weights for the integration. It calls the same method of IFDData class.
 	inline const VectorXr & getWeights() const {return ifdData_.getWeights();}
+	inline const VectorXr & getWeightFunction() const {return wfunction_;}
 	//! A method returning the depth of the data (no integration).
 	inline const VectorXr getDepth() const {return depth_->compute_depth();}
 	inline const VectorXr getDepth(UInt i) const {return depth_->compute_depth(i);}

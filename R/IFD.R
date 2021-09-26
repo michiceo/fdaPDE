@@ -10,7 +10,7 @@
 #' @return A list with the following variables:
 #' \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
 #' \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
-#' \item{\code{weights}}{Weights given as input in IFD.FEM().}
+#' \item{\code{weights}}{Evaluation of weight function at nodes.}
 #' \item{\code{ifd}}{IFD computed.}
 #' \item{\code{depth}}{Depth computed.}
 #' @description This function implements the formula to compute the integrated functional depth of a set of complex multidimensional functional data.

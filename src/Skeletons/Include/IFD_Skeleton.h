@@ -12,10 +12,10 @@
 #include "../../Integrated_Functional_Depth/Include/IFD_FE.h"
 
 template<UInt ORDER, UInt mydim, UInt ndim>
-SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
+SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rwfunction, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
 {
 	// Construct data problem object
-	DataProblem<ORDER, mydim, ndim> dataProblem(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice);
+	DataProblem<ORDER, mydim, ndim> dataProblem(Rdata, Rorder, Rweights, Rwfunction, Rsearch, Rmesh, depth_choice);
 	
 	
 	

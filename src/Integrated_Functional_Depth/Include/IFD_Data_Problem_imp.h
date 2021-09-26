@@ -2,11 +2,19 @@
 #define __IFD_DATA_PROBLEM_IMP_H__
 
 template<UInt ORDER, UInt mydim, UInt ndim>
-DataProblem<ORDER, mydim, ndim>::DataProblem(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string& d):
+DataProblem<ORDER, mydim, ndim>::DataProblem(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rwfunction, SEXP Rsearch, SEXP Rmesh, const std::string& d):
 ifdData_(Rdata, Rorder, Rweights), mesh_(Rmesh, INTEGER(Rsearch)[0]), d_tag(d)
 {
 	depth_ = Depth_factory::createDepth(this->data(), d_tag);
 	fillPsiQuad();
+	
+  // set weight function
+	UInt dimc = Rf_length(Rwfunction);
+	wfunction_.resize(dimc);
+	for(UInt i=0; i<dimc; i++)
+	{
+	  wfunction_[i] = REAL(Rwfunction)[i];
+	}
 }
 
 template<UInt ORDER, UInt mydim, UInt ndim>
@@ -79,7 +87,7 @@ DataProblem<ORDER, mydim, ndim>::FEintegral_weights() const
 		
 		Eigen::Matrix<Real, EL_NNODES, 1> sub_w;
     		for(UInt i = 0; i < EL_NNODES; ++i){
-		  sub_w[i] = this->getWeights()[tri_activated[i].getId()];
+		  sub_w[i] = getWeightFunction()[tri_activated[i].getId()];
 		}
 		
 		Eigen::Matrix<Real, Integrator::NNODES, 1> weights = (PsiQuad_*sub_w).array();
