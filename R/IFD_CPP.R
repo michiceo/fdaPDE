@@ -7,6 +7,7 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choi
   FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] - 1
 
   w <- weights(FEMbasis$mesh$nodes)
+  w = as.vector(w)
   
   ## Set proper type for correct C++ reading
   storage.mode(data) <- "double"

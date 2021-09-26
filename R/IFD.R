@@ -57,7 +57,7 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   
   ## Coverting to format for internal usage
   data = as.matrix(data)
-  weights = as.vector(weights)
+  #weights = as.vector(weights)
   
   checkParametersSizeIFD(data, FEMbasis, weights) 
   ###################### End checking parameters, sizes and conversion #############################

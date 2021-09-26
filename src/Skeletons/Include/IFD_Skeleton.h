@@ -29,8 +29,8 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 		SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
 		SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
 		SET_VECTOR_ELT(result, 2, Rf_allocVector(REALSXP, dataProblem.getWeights().size()));
-		SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, 1);
-		SET_VECTOR_ELT(result, 4, Rf_allocVector(REALSXP, 1);
+		SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, 1));
+		SET_VECTOR_ELT(result, 4, Rf_allocVector(REALSXP, 1));
 		
 		Real *rans = REAL(VECTOR_ELT(result, 0));
 		for(UInt j = 0; j < dataProblem.dataCols(); j++)

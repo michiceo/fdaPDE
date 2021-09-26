@@ -12,7 +12,7 @@ each column corresponds to the evaluation of a specific function at all the mesh
 
 \item{FEMbasis}{A \code{FEMbasis} object describing the Finite Element basis, as created by \code{\link{create.FEM.basis}}.}
 
-\item{weights}{A vector of length #\code{nodes} of the mesh. It corresponds to the weights for the integration. The sum of the elements in the vector MUST be equal to 1.}
+\item{weights}{A weight function. The integral of the function MUST be equal to 1.}
 
 \item{search}{a flag to decide the search algorithm type (tree or naive or walking search algorithm).}
 
