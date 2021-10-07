@@ -12,18 +12,18 @@
 #include "../../Integrated_Functional_Depth/Include/IFD_FE.h"
 
 template<UInt ORDER, UInt mydim, UInt ndim>
-SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rwfunction, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
+SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rmesh, const std::string & depth_choice)
 {
 	// Construct data problem object
-	DataProblem<ORDER, mydim, ndim> dataProblem(Rdata, Rorder, Rweights, Rwfunction, Rsearch, Rmesh, depth_choice);
+	DataProblem<ORDER, mydim, ndim> dataProblem(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice);
 	
 	
 	
 	// Verify that the integral of the weight function = 1
-	Real w = dataProblem.FEintegral_weights();
+	// Real w = dataProblem.FEintegral_weights();
 	
 	// if w != 1
-	if(w > 1.01 && w < 0.99){
+	/*if(w > 1.01 && w < 0.99){
 		SEXP result = NILSXP;
 		result = PROTECT(Rf_allocVector(VECSXP, 5));
 		SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
@@ -59,11 +59,11 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rwfunction, SEXP 
 
 			
 		return(result);
-	}
+	}*/
 	
 	
 	
-	else{
+	// else{
 		// Construct FEIFD object
 		FEIFD<ORDER, mydim, ndim> feifd(dataProblem);
 
@@ -114,7 +114,7 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rwfunction, SEXP 
 		UNPROTECT(1);
 
 		return(result);
-	}
+//	}
 };
 
 #endif /* __IFD_SKELETON_H__ */

@@ -5,16 +5,6 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choi
   FEMbasis$mesh$triangles = FEMbasis$mesh$triangles - 1
   FEMbasis$mesh$edges = FEMbasis$mesh$edges - 1
   FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] - 1
-
-  w <- weights(FEMbasis$mesh$nodes)
-  w = as.vector(w)
-  
-  # weight function
-  x1 = seq(0,1, length.out = 1000)
-  x2 = x1
-  points = expand.grid(x,y)
-  wf <- weights(points)
-  wf = as.vector(wf)
   
   ## Set proper type for correct C++ reading
   storage.mode(data) <- "double"
@@ -24,7 +14,6 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choi
   storage.mode(FEMbasis$mesh$neighbors) <- "integer"
   storage.mode(FEMbasis$order) <- "integer"
   storage.mode(w) <- "double"
-  storage.mode(wf) <- "double"
   storage.mode(ndim) <- "integer"
   storage.mode(mydim) <- "integer"
   storage.mode(search) <- "integer"
@@ -32,9 +21,8 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choi
   storage.mode(depth_choice) <- "character"
 
   ## Call C++ function
-  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, w, wf, search, depth_choice,
+  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, w, search, depth_choice,
                   PACKAGE = "fdaPDE")
-  # FEMbasis$mesh$nodes = NODES -> weigths(NODES)
 
   ## Reset them correctly
   # FEMbasis$mesh$triangles = FEMbasis$mesh$triangles + 1

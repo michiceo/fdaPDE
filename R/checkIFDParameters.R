@@ -1,4 +1,4 @@
-checkParametersIFD <- function(data, FEMbasis, weights, search, depth_choice) 
+checkParametersIFD <- function(data, FEMbasis, search, depth_choice) 
 {
   #################### Parameter Check #########################
   if (is.null(data)) 
@@ -33,7 +33,7 @@ checkParametersIFD <- function(data, FEMbasis, weights, search, depth_choice)
 }
 
 
-checkParametersSizeIFD <- function(data, FEMbasis, weights) 
+checkParametersSizeIFD <- function(data, FEMbasis) 
 {
   if(nrow(data) < 1)
     stop("functions must contain at least one evaluation.")

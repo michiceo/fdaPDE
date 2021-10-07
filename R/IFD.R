@@ -50,16 +50,25 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   }
 
   ###################### Checking parameters, sizes and conversion #################################
-  checkParametersIFD(data, FEMbasis, weights, search, depth_choice)
+  
+  if(missing("weights")){
+    n <- FEMbasis$nbasis
+    w <- rep(1/n, n)
+  }
+  else{
+    w <- weights(FEMbasis$mesh$nodes)
+  }
+  
+  checkParametersIFD(data, FEMbasis, search, depth_choice)
   
   # weights values for each point of the mesh
   # w<-w_func(FEMbasis$mesh$nodes)
   
   ## Coverting to format for internal usage
   data = as.matrix(data)
-  #weights = as.vector(weights)
+  w = as.vector(w)
   
-  checkParametersSizeIFD(data, FEMbasis, weights) 
+  checkParametersSizeIFD(data, FEMbasis) 
   ###################### End checking parameters, sizes and conversion #############################
   
   ###################### C++ Code Execution #########################################################
