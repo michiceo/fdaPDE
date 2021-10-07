@@ -52,11 +52,17 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   ###################### Checking parameters, sizes and conversion #################################
   
   if(missing("weights")){
-    n <- FEMbasis$nbasis
-    weights <- function(n){
-      output <- rep(1/n, n)
+    n <- dim(data)[2]
+    p <- dim(data)[1]
+    
+    weights <- function(nfun){
+      phi_num <- nfun - rowSums(is.na(data))
+      phi_den <- apply(data, 2, function(x) sum(phi_num[!is.na(x)]))
+      
+      output <- phi_num/phi_den
       output
     }
+    
     w <- weights(n)
   }
   else{
