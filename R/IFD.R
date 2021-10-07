@@ -53,7 +53,11 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   
   if(missing("weights")){
     n <- FEMbasis$nbasis
-    w <- rep(1/n, n)
+    weights <- function(n){
+      output <- rep(1/n, n)
+      output
+    }
+    w <- weights(n)
   }
   else{
     w <- weights(FEMbasis$mesh$nodes)
@@ -75,14 +79,14 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   bigsol = NULL
   if(class(FEMbasis$mesh) == 'mesh.2D'){	  
     
-    bigsol = CPP_FEM.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
+    bigsol = CPP_FEM.IFD(data, FEMbasis, ndim, mydim, w, search, depth_choice)
     
   } else if(class(FEMbasis$mesh) == 'mesh.2.5D'){
     
-    bigsol = CPP_FEM.manifold.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
+    bigsol = CPP_FEM.manifold.IFD(data, FEMbasis, ndim, mydim, w, search, depth_choice)
     
   } else if(class(FEMbasis$mesh) == 'mesh.3D'){
-    bigsol = CPP_FEM.volume.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
+    bigsol = CPP_FEM.volume.IFD(data, FEMbasis, ndim, mydim, w, search, depth_choice)
   }
   
   ###################### Collect Results ############################################################  
@@ -93,8 +97,8 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   ifd     = bigsol[[4]]
   depth   = bigsol[[5]]
   
-  if (ifd == 0. && depth==0.)
-    stop("integral of weight function != 1. Give another weight function.")
+  # if (ifd == 0. && depth==0.)
+    # stop("integral of weight function != 1. Give another weight function.")
   
   reslist = list(data = data, order = order, weights = weights, ifd = ifd, depth = depth)
   return(reslist)

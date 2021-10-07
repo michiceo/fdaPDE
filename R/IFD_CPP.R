@@ -13,7 +13,7 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choi
   storage.mode(FEMbasis$mesh$edges) <- "integer"
   storage.mode(FEMbasis$mesh$neighbors) <- "integer"
   storage.mode(FEMbasis$order) <- "integer"
-  storage.mode(w) <- "double"
+  storage.mode(weights) <- "double"
   storage.mode(ndim) <- "integer"
   storage.mode(mydim) <- "integer"
   storage.mode(search) <- "integer"
@@ -21,7 +21,7 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choi
   storage.mode(depth_choice) <- "character"
 
   ## Call C++ function
-  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, w, search, depth_choice,
+  bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search, depth_choice,
                   PACKAGE = "fdaPDE")
 
   ## Reset them correctly
