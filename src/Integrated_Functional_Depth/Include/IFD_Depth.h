@@ -30,6 +30,8 @@ protected:
 	const UInt n_ = m_.cols();
 	// number of points
 	const UInt p_ = m_.rows();
+	//! A method to compute the number of nan in a vector.
+	const UInt isnan_vector(const VectorXr& v) const;
 
 };
 

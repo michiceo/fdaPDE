@@ -3,10 +3,10 @@ checkParametersIFD <- function(data, FEMbasis, search, depth_choice)
   #################### Parameter Check #########################
   if (is.null(data)) 
     stop("'data' required;  is NULL.")
-  else{
-    if(any(is.na(data)))
-      stop("Missing values not admitted in 'data'.")
-  }
+  #else{
+    #if(any(is.na(data)))
+      #stop("Missing values not admitted in 'data'.")
+  #}
   
   if (is.null(FEMbasis)) 
     stop("'FEMbasis' required;  is NULL.")
