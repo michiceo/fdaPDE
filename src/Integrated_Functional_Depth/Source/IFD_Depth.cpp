@@ -50,13 +50,21 @@ MHRD::compute_depth(UInt k) const
 	VectorXr hrd   = VectorXr::Zero(this->p_);
 
 	for(Eigen::Index j=0; j < this->p_; ++j){
-	  VectorXi rmat = ranking(m_.row(j));
+	    VectorXi rmat = ranking(m_.row(j));
 	  
-	  UInt number_nan = isnan_vector(m_.row(j));
+	    UInt number_nan = isnan_vector(m_.row(j));
+
+	    if(this->n_ - number_nan - rmat[k] > 0 ){
 	  
-	  mepi[j] = (double) (this->n_ - number_nan - rmat[k]) / ((double) (this->n_ - number_nan - 1));
-	  mhipo[j] = (double) (rmat[k] - 1) / ((double) (this->n_ - number_nan - 1));
-	  
+	  		mepi[j] = (double) (this->n_ - number_nan - rmat[k]) / ((double) (this->n_ - number_nan - 1));
+	  		mhipo[j] = (double) (rmat[k] - 1) / ((double) (this->n_ - number_nan - 1));
+		}
+		else{
+			mepi[j] = 0;
+			mhipo[j] = 0;
+		}
+
+
 	  hrd[j] = std::min(mepi[j], mhipo[j]);
 	}
 
