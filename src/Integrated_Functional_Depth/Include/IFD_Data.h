@@ -20,7 +20,7 @@ private:
 	// Finte element order
 	UInt order_;
 	// Weights for the integration of the depth
-	VectorXr weights_;
+	MatrixXr weights_; //VectorXr
 
 	// Auxiliary methods used in the constructor
 	void setData(SEXP Rdata);
@@ -30,7 +30,7 @@ public:
 	// Constructors
 	IFDData(){};
 
-	explicit IFDData(const MatrixXr & data, const UInt & order, const VectorXr & weights);
+	explicit IFDData(const MatrixXr & data, const UInt & order, const MatrixXr & weights); //VectorXr
 
 	/*! Costructor useful for the R C++ interface.
 				It initializes the object storing the R given objects.
@@ -60,7 +60,7 @@ public:
 	//! A method returning the the input order.
 	UInt getOrder() const {return order_;}
 	//! A method returning the weights for the integration.
-	const VectorXr & getWeights() const {return weights_;}
+	const MatrixXr & getWeights() const {return weights_;} //VectorXr
 
 	// Print
 	//! A method printing data.
@@ -68,4 +68,3 @@ public:
 };
 
 #endif /* __IFD_DATA_H__ */
-

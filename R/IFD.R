@@ -55,19 +55,25 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
     n <- dim(data)[2]
     p <- dim(data)[1]
     
-    weights <- function(nfun){
+    w <- function(nfun, npoints){
       phi_num <- nfun - rowSums(is.na(data))
       phi_den <- apply(data, 2, function(x) sum(phi_num[!is.na(x)]))
       
-      output <- phi_num/phi_den
-      output
+      output <- matrix(0, npoints, nfun)
+      for(i in 1:nfun){
+        for(j in 1:npoints){
+          output[j, i]<-phi_num[j]/phi_den[i]
+        }
+      }
+      
+      output # matrix with the weights for each function (considers the NA)
     }
     
-    w <- weights(n)
+    weights <- w(n, p)
   }
-  else{
-    w <- weights(FEMbasis$mesh$nodes)
-  }
+  #else{
+    #w <- weights(FEMbasis$mesh$nodes)
+  #}
   
   checkParametersIFD(data, FEMbasis, search, depth_choice)
   
@@ -76,7 +82,8 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   
   ## Coverting to format for internal usage
   data = as.matrix(data)
-  w = as.vector(w)
+  w = as.matrix(weights)
+  #w = as.vector(w)
   
   checkParametersSizeIFD(data, FEMbasis) 
   ###################### End checking parameters, sizes and conversion #############################
@@ -99,13 +106,13 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   
   data    = bigsol[[1]]
   order   = bigsol[[2]]
-  weights = bigsol[[3]]
+  wghts   = bigsol[[3]]
   ifd     = bigsol[[4]]
   depth   = bigsol[[5]]
   
   # if (ifd == 0. && depth==0.)
     # stop("integral of weight function != 1. Give another weight function.")
   
-  reslist = list(data = data, order = order, weights = weights, ifd = ifd, depth = depth)
+  reslist = list(data = data, order = order, ws = wghts, ifd = ifd, depth = depth)
   return(reslist)
 }

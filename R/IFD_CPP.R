@@ -24,10 +24,10 @@ CPP_FEM.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, depth_choi
   bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search, depth_choice,
                   PACKAGE = "fdaPDE")
 
-  ## Reset them correctly
-  # FEMbasis$mesh$triangles = FEMbasis$mesh$triangles + 1
-  # FEMbasis$mesh$edges = FEMbasis$mesh$edges + 1
-  # FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] + 1
+  # Reset them correctly
+  FEMbasis$mesh$triangles = FEMbasis$mesh$triangles + 1
+  FEMbasis$mesh$edges = FEMbasis$mesh$edges + 1
+  FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] + 1
   
   return(bigsol)
 }
@@ -59,10 +59,10 @@ CPP_FEM.manifold.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, d
   bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search, depth_choice,
                   PACKAGE = "fdaPDE")
   
-  ## Reset them correctly
-  # FEMbasis$mesh$triangles = FEMbasis$mesh$triangles + 1
-  # FEMbasis$mesh$edges = FEMbasis$mesh$edges + 1
-  # FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] + 1
+  # Reset them correctly
+  FEMbasis$mesh$triangles = FEMbasis$mesh$triangles + 1
+  FEMbasis$mesh$edges = FEMbasis$mesh$edges + 1
+  FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] + 1
   
   return(bigsol)
 }
@@ -80,7 +80,7 @@ CPP_FEM.volume.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, dep
   ## Set proper type for correct C++ reading
   storage.mode(data) <- "double"
   storage.mode(FEMbasis$mesh$nodes) <- "double"
-  storage.mode(FEMbasis$mesh$triangles) <- "integer"
+  storage.mode(FEMbasis$mesh$tetrahedrons) <- "integer"
   storage.mode(FEMbasis$mesh$edges) <- "integer"
   storage.mode(FEMbasis$mesh$neighbors) <- "integer"
   storage.mode(FEMbasis$order) <- "integer"
@@ -94,10 +94,10 @@ CPP_FEM.volume.IFD <- function(data, FEMbasis, ndim, mydim, weights, search, dep
   bigsol <- .Call("Integrated_Functional_Depth", data, FEMbasis$mesh, FEMbasis$order, mydim, ndim, weights, search, depth_choice,
                   PACKAGE = "fdaPDE")
   
-  ## Reset them correctly
-  # FEMbasis$mesh$triangles = FEMbasis$mesh$triangles + 1
-  # FEMbasis$mesh$edges = FEMbasis$mesh$edges + 1
-  # FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] + 1
+  # Reset them correctly
+  FEMbasis$mesh$tetrahedrons = FEMbasis$mesh$tetrahedrons + 1
+  FEMbasis$mesh$edges = FEMbasis$mesh$edges + 1
+  FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] = FEMbasis$mesh$neighbors[FEMbasis$mesh$neighbors != -1] + 1
   
   return(bigsol)
 }
