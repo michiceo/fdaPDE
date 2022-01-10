@@ -101,7 +101,7 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 		for(UInt j = 0; j < dataProblem.dataCols(); j++)
 		{
 			for(UInt i = 0; i < dataProblem.dataRows(); i++)
-				rans[i + dataProblem.dataRows()*j] = dataProblem.getWeights()(i, j);
+				rans2[i + dataProblem.dataRows()*j] = dataProblem.getWeights()(i, j);
 		}
 
 		Real *rans3 = REAL(VECTOR_ELT(result, 3));

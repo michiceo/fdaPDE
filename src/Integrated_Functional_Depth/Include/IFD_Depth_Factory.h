@@ -13,13 +13,14 @@ public:
 	{
 		if(d == "MHRD")
 			return std::make_shared<MHRD>(m);
+		else if(d == "MBD")
+			return std::make_shared<MBD>(m);
 		else
 		{
-			Rprintf("Unavailable depth choice - using Modified Half Region Depth");
-			return std::make_shared<MHRD>(m);
+			Rprintf("Unavailable depth choice - using Modified Band Depth");
+			return std::make_shared<MBD>(m);
 		}
 	}
 };
 
 #endif /* __IFD_DEPTH_FACTORY_H__ */
-

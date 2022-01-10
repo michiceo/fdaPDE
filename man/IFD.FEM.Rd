@@ -2,12 +2,12 @@
 % Please edit documentation in R/IFD.R
 \name{IFD.FEM}
 \alias{IFD.FEM}
-\title{Integrated functional depth computation for complex multidimensional functional data}
+\title{Integrated depth for functions over complicated multidimensional domains}
 \usage{
 IFD.FEM(data, FEMbasis, weights, search = "tree", depth_choice)
 }
 \arguments{
-\item{data}{A matrix of dimensions #mesh nodes-by-#functions. Data are functions: each row corresponds to the evaluations of the functions at one specific node of the mesh, 
+\item{data}{A matrix of dimensions #mesh nodes-by-#functions. Data are functions: each row corresponds to the evaluations of the functions at one specific node of the mesh,
 each column corresponds to the evaluation of a specific function at all the mesh nodes.}
 
 \item{FEMbasis}{A \code{FEMbasis} object describing the Finite Element basis, as created by \code{\link{create.FEM.basis}}.}
@@ -22,16 +22,43 @@ each column corresponds to the evaluation of a specific function at all the mesh
 A list with the following variables:
 \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
 \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
-\item{\code{weights}}{Weights given as input in IFD.FEM().}
-\item{\code{ifd}}{IFD computed.}
-\item{\code{depth}}{Depth computed.}
+\item{\code{weights}}{Weights given as input in IFD.FEM(). If no weights are given as input, the default option is a uniform set of weights over the available observations.}
+\item{\code{ifd}}{Weighted depth (Integrated Functional Depth) computed.}
+\item{\code{depth}}{Non-weighted depth computed.}
 }
 \description{
-This function implements the formula to compute the integrated functional depth of a set of complex multidimensional functional data.
+This function implements the formula to compute the integrated depth for a set of functions over complicated multidimensional domains.
 The computation relies only on the C++ implementation of the algorithm.
 }
 \examples{
 library(fdaPDE)
-## example still to be implemented
+
+## Create a 2D mesh over a squared domain
+x = seq(0,1, length.out = 3)
+y = x
+locations = expand.grid(x,y)
+mesh = create.mesh.2D(locations) #, order=2)
+plot(mesh)
+nnodes = dim(mesh$nodes)[1]
+FEMbasis = create.FEM.basis(mesh)
+
+## Generate data
+data = NULL
+for(ii in 1:50){
+  a1 = rnorm(1, mean = 1, sd = 1)
+  a2 = rnorm(1, mean = 1, sd = 1)
+
+  func_evaluation = numeric(nrow(mesh$nodes))
+  for (i in 0:(nrow(mesh$nodes)-1)){
+    func_evaluation[i+1] = a1* sin(2*pi*mesh$nodes[i+1,1]) +
+                           a2* sin(2*pi*mesh$nodes[i+1,2]) + 1
+  }
+  datum = func_evaluation + rnorm(nrow(mesh$nodes), mean = 0, sd = 0.5)
+  data = cbind(data, datum)
+  colnames(data) = NULL
 }
 
+## Computation of the depth
+sol <- IFD.FEM(data = data, FEMbasis = FEMbasis, depth_choice = "MHRD")
+
+}

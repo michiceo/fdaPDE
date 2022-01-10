@@ -32,6 +32,8 @@ protected:
 	const UInt p_ = m_.rows();
 	//! A method to compute the number of nan in a vector.
 	const UInt isnan_vector(const VectorXr& v) const;
+	//! A method to perform the ranking of the elements in the vector.
+	const VectorXi ranking(const VectorXr& v) const;
 
 };
 
@@ -47,11 +49,20 @@ public:
 	//! An overridden method to compute the depth chosen of the k-th function at each mesh node.
 	const VectorXr compute_depth(UInt k) const override;
 
-private:
-	//! A method to perform the ranking of the elements in the vector.
-	const VectorXi ranking(const VectorXr& v) const;
+};
+
+/*! @brief A class dealing with the computation of the Modified Half Region Depth.
+*/
+class MBD: public Depth{
+
+public:
+	//! A Constructor
+	MBD(const MatrixXr& m);
+	//! An overridden method to compute the depth chosen of all data.
+	const VectorXr compute_depth() const override;
+	//! An overridden method to compute the depth chosen of the k-th function at each mesh node.
+	const VectorXr compute_depth(UInt k) const override;
 
 };
 
 #endif /* __IFD_DEPTH_H__ */
-
