@@ -52,6 +52,7 @@ DataProblem<ORDER, mydim, ndim>::FEintegrate_depth(const MatrixXr& X) const
 
 			if(x != X.col( X.cols()-1 )) // O(1)
 				X_cap.conservativeResize(X_cap.rows(), X_cap.cols()+1);
+		}
 
 		depth_cap = Depth_factory::createDepth(X_cap, d_tag);
 
