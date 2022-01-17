@@ -50,10 +50,12 @@ DataProblem<ORDER, mydim, ndim>::FEintegrate_depth(const MatrixXr& X) const
 			Eigen::Matrix<Real, Integrator::NNODES, 1> x_cap = (PsiQuad_*sub_x).array();
 			X_cap.col(X_cap.cols()-1) = x_cap; // fill the matrix with the transformed functions (due to quadrature formula evaluation)
 
-			if(x != X.col( X.cols()-1 ))
+			if(x != X.col( X.cols()-1 )) // O(1)
 				X_cap.conservativeResize(X_cap.rows(), X_cap.cols()+1);
 
-			depth_cap = Depth_factory::createDepth(X_cap, d_tag);
+		depth_cap = Depth_factory::createDepth(X_cap, d_tag);
+
+		for(Eigen::Index j=0; j < X.cols(); ++j){
 			Eigen::Matrix<Real, Integrator::NNODES, 1> weights = (PsiQuad_*sub_w.col(j)).array();
 			Eigen::DiagonalMatrix<Real, Integrator::NNODES, Integrator::NNODES> weighdiag;
 			weighdiag.diagonal() = weights;
