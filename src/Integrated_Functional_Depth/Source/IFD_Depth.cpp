@@ -12,29 +12,35 @@ Depth::isnan_vector(const VectorXr& v) const
   return number_nan;
 }
 
+const VectorXi
+Depth::ranking(const VectorXr& v) const
+{
+  VectorXr vsorted = v;
+  VectorXi vrank   = VectorXi::Zero(v.size());
+
+  std::sort(vsorted.data(), vsorted.data() + vsorted.size());
+
+  std::map<double, int> ranks;
+  int rank = 1;
+
+  for(Eigen::Index index = 0; index < v.size(); index++)
+  {
+    double element = vsorted[index];
+    ranks[element] = rank;
+    rank++;
+  }
+
+  for(Eigen::Index index = 0; index < v.size(); index++)
+  {
+    double element = v[index];
+    vrank[index] = ranks[element];
+  }
+	return vrank;
+}
 
 MHRD::MHRD(const MatrixXr& m):
 Depth(m)
 {
-}
-
-const VectorXi
-Depth::ranking(const VectorXr& v) const
-{
-	VectorXr vsorted = v;
-  VectorXi vrank   = VectorXi::Zero(v.size());
-
-	std::sort(vsorted.data(), vsorted.data() + vsorted.size());
-
-	for(Eigen::Index i=0; i<v.size(); ++i){
-
-		auto it = std::find(v.data(), v.data() + v.size(), vsorted[i]);
-		if(vrank[it - v.data()] != 0){
-			it = std::find(it+1, v.data() + v.size(), vsorted[i]);
-		}
-		vrank[it - v.data()] = i+1;
-	}
-	return vrank;
 }
 
 const VectorXr
