@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <string>
+#include <tuple>
 #include "../../FdaPDE.h"
 
 // This file contains the possible functional depth measures choices
@@ -19,9 +20,9 @@ public:
 	//! A Destructor.
 	virtual ~Depth(){};
 	//! A pure virtual method to compute the depth of all data.
-	virtual const VectorXr compute_depth() const = 0;
+	inline virtual const VectorXr depth() const = 0;
 	//! A pure virtual method to compute the depth of the k-th function at each mesh node.
-	virtual const VectorXr compute_depth(UInt k) const = 0;
+	inline virtual const VectorXr depth(UInt k) const = 0;
 
 protected:
 	//! A matrix of data
@@ -44,10 +45,13 @@ class MHRD: public Depth{
 public:
 	//! A Constructor
 	MHRD(const MatrixXr& m);
-	//! An overridden method to compute the depth chosen of all data.
-	const VectorXr compute_depth() const override;
-	//! An overridden method to compute the depth chosen of the k-th function at each mesh node.
-	const VectorXr compute_depth(UInt k) const override;
+	//! A method to compute the depth chosen of all data.
+	const std::tuple<VectorXr, VectorXr, VectorXr> compute_depth() const ;
+	//! A method to compute the depth chosen of the k-th function at each mesh node.
+	const std::tuple<VectorXr, VectorXr, VectorXr> compute_depth(UInt k) const ;
+	//! Overriden methods
+	inline const VectorXr depth() const override {return std::get<2>(this->compute_depth());};
+	inline const VectorXr depth(UInt k) const override {return std::get<2>(this->compute_depth(k));};
 
 };
 
@@ -58,10 +62,13 @@ class MBD: public Depth{
 public:
 	//! A Constructor
 	MBD(const MatrixXr& m);
-	//! An overridden method to compute the depth chosen of all data.
-	const VectorXr compute_depth() const override;
-	//! An overridden method to compute the depth chosen of the k-th function at each mesh node.
-	const VectorXr compute_depth(UInt k) const override;
+	//! A method to compute the depth chosen of all data.
+	const VectorXr compute_depth() const ;
+	//! A method to compute the depth chosen of the k-th function at each mesh node.
+	const VectorXr compute_depth(UInt k) const ;
+	//! Overriden methods
+	inline const VectorXr depth() const override {return this->compute_depth();};
+	inline const VectorXr depth(UInt k) const override {return this->compute_depth(k);};
 
 };
 

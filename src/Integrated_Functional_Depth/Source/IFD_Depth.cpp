@@ -43,7 +43,7 @@ Depth(m)
 {
 }
 
-const VectorXr
+const std::tuple<VectorXr, VectorXr, VectorXr>// VectorXr
 MHRD::compute_depth() const
 {
 	VectorXr mepi  = VectorXr::Zero(this->n_);
@@ -67,10 +67,10 @@ MHRD::compute_depth() const
 	for(Eigen::Index i=0; i < this->n_; ++i){
 		hrd[i] = std::min(mepi[i], mhipo[i]);
 	}
-	return hrd;
+	return std::make_tuple(mepi, mhipo, hrd);
 }
 
-const VectorXr
+const std::tuple<VectorXr, VectorXr, VectorXr>// VectorXr
 MHRD::compute_depth(UInt k) const
 {
 	VectorXr mepi  = VectorXr::Zero(this->p_);
@@ -92,7 +92,7 @@ MHRD::compute_depth(UInt k) const
 		}
 	  hrd[j] = std::min(mepi[j], mhipo[j]);
 	}
-	return hrd;
+	return std::make_tuple(mepi, mhipo, hrd);
 }
 
 

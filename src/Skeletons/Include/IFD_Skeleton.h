@@ -16,110 +16,56 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 {
 	// Construct data problem object
 	DataProblem<ORDER, mydim, ndim> dataProblem(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice);
+	FEIFD<ORDER, mydim, ndim> feifd(dataProblem);
 
+	// Perform the whole task
+	feifd.apply();
 
+	// Collect results
+	VectorXr ifd = feifd.getIFD();
+	VectorXr depth = feifd.getDepth();
 
-	// Verify that the integral of the weight function = 1
-	// Real w = dataProblem.FEintegral_weights();
+	// Copy result in R memory
+	SEXP result = NILSXP;
+	result = PROTECT(Rf_allocVector(VECSXP, 5));
+	SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
+	SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
+	SET_VECTOR_ELT(result, 2, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
+	SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, ifd.size()));
+	SET_VECTOR_ELT(result, 4, Rf_allocVector(REALSXP, depth.size()));
 
-	// if w != 1
-	/*if(w > 1.01 && w < 0.99){
-		SEXP result = NILSXP;
-		result = PROTECT(Rf_allocVector(VECSXP, 5));
-		SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
-		SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
-		SET_VECTOR_ELT(result, 2, Rf_allocVector(REALSXP, dataProblem.getWeights().size()));
-		SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, 1));
-		SET_VECTOR_ELT(result, 4, Rf_allocVector(REALSXP, 1));
+	Real *rans = REAL(VECTOR_ELT(result, 0));
+	for(UInt j = 0; j < dataProblem.dataCols(); j++)
+	{
+		for(UInt i = 0; i < dataProblem.dataRows(); i++)
+			rans[i + dataProblem.dataRows()*j] = dataProblem.data()(i, j);
+	}
 
-		Real *rans = REAL(VECTOR_ELT(result, 0));
-		for(UInt j = 0; j < dataProblem.dataCols(); j++)
-		{
-			for(UInt i = 0; i < dataProblem.dataRows(); i++)
-				rans[i + dataProblem.dataRows()*j] = dataProblem.data()(i, j);
-		}
+	int *rans1 = INTEGER(VECTOR_ELT(result, 1));
+	*rans1 = dataProblem.getOrder();
 
-		int *rans1 = INTEGER(VECTOR_ELT(result, 1));
-		*rans1 = dataProblem.getOrder();
+	Real *rans2 = REAL(VECTOR_ELT(result, 2));
+	for(UInt j = 0; j < dataProblem.dataCols(); j++)
+	{
+		for(UInt i = 0; i < dataProblem.dataRows(); i++)
+			rans2[i + dataProblem.dataRows()*j] = dataProblem.getWeights()(i, j);
+	}
 
-		Real *rans2 = REAL(VECTOR_ELT(result, 2));
-		for(UInt i = 0; i < dataProblem.getWeights().size(); i++)
-		{
-			rans2[i] = dataProblem.getWeights()[i];
-		}
+	Real *rans3 = REAL(VECTOR_ELT(result, 3));
+	for(UInt i = 0; i < ifd.size(); i++)
+	{
+		rans3[i] = ifd[i];
+	}
 
-		Real *rans3 = REAL(VECTOR_ELT(result, 3));
-		*rans3=0.;
+	Real *rans4 = REAL(VECTOR_ELT(result, 4));
+	for(UInt i = 0; i < depth.size(); i++)
+	{
+		rans4[i] = depth[i];
+	}
 
+	UNPROTECT(1);
 
-		Real *rans4 = REAL(VECTOR_ELT(result, 4));
-		*rans4=0.;
-
-		UNPROTECT(1);
-
-
-		return(result);
-	}*/
-
-
-
-	// else{
-		// Construct FEIFD object
-		FEIFD<ORDER, mydim, ndim> feifd(dataProblem);
-
-		// Perform the whole task
-		feifd.apply();
-
-		// Collect results
-		VectorXr ifd = feifd.getIFD();
-		VectorXr depth = feifd.getDepth();
-
-		// Copy result in R memory
-		SEXP result = NILSXP;
-		result = PROTECT(Rf_allocVector(VECSXP, 5));
-		SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
-		SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
-		SET_VECTOR_ELT(result, 2, Rf_allocMatrix(REALSXP, dataProblem.dataRows(), dataProblem.dataCols()));
-		SET_VECTOR_ELT(result, 3, Rf_allocVector(REALSXP, ifd.size()));
-		SET_VECTOR_ELT(result, 4, Rf_allocVector(REALSXP, depth.size()));
-
-		Real *rans = REAL(VECTOR_ELT(result, 0));
-		for(UInt j = 0; j < dataProblem.dataCols(); j++)
-		{
-			for(UInt i = 0; i < dataProblem.dataRows(); i++)
-				rans[i + dataProblem.dataRows()*j] = dataProblem.data()(i, j);
-		}
-
-		int *rans1 = INTEGER(VECTOR_ELT(result, 1));
-		*rans1 = dataProblem.getOrder();
-
-		Real *rans2 = REAL(VECTOR_ELT(result, 2));
-		/*for(UInt i = 0; i < dataProblem.getWeights().size(); i++)
-		{
-			rans2[i] = dataProblem.getWeights()[i];
-		}*/
-		for(UInt j = 0; j < dataProblem.dataCols(); j++)
-		{
-			for(UInt i = 0; i < dataProblem.dataRows(); i++)
-				rans2[i + dataProblem.dataRows()*j] = dataProblem.getWeights()(i, j);
-		}
-
-		Real *rans3 = REAL(VECTOR_ELT(result, 3));
-		for(UInt i = 0; i < ifd.size(); i++)
-		{
-			rans3[i] = ifd[i];
-		}
-
-		Real *rans4 = REAL(VECTOR_ELT(result, 4));
-		for(UInt i = 0; i < depth.size(); i++)
-		{
-			rans4[i] = depth[i];
-		}
-
-		UNPROTECT(1);
-
-		return(result);
-//	}
+	return(result);
 };
 
 #endif /* __IFD_SKELETON_H__ */

@@ -33,10 +33,6 @@ DataProblem<ORDER, mydim, ndim>::FEintegrate_depth(const MatrixXr& X) const
 		Element<EL_NNODES, mydim, ndim> tri_activated = mesh_.getElement(triangle);
 
 		MatrixXr sub_w = MatrixXr::Zero(EL_NNODES, X.cols());
-		// Eigen::Matrix< Real, EL_NNODES, X.cols() > sub_w; //1
-    /*for(UInt i = 0; i < EL_NNODES; ++i){
-		  sub_w[i] = this->getWeights()[tri_activated[i].getId()];
-    }*/
 
 		for(Eigen::Index j=0; j < X.cols(); ++j){
 			const VectorXr& x = X.col(j);
@@ -60,7 +56,7 @@ DataProblem<ORDER, mydim, ndim>::FEintegrate_depth(const MatrixXr& X) const
 			Eigen::Matrix<Real, Integrator::NNODES, 1> weights = (PsiQuad_*sub_w.col(j)).array();
 			Eigen::DiagonalMatrix<Real, Integrator::NNODES, Integrator::NNODES> weighdiag;
 			weighdiag.diagonal() = weights;
-			total_sum[j] += ( weighdiag * depth_cap->compute_depth(j) ).dot(EigenMap2WEIGHTS(&Integrator::WEIGHTS[0])) * tri_activated.getMeasure();
+			total_sum[j] += ( weighdiag * depth_cap->depth(j) ).dot(EigenMap2WEIGHTS(&Integrator::WEIGHTS[0])) * tri_activated.getMeasure(); //TODO da fare in modo che cambi return type in base a depth scelta
 		}
 	}
 

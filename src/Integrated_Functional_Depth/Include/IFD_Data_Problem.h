@@ -16,12 +16,12 @@
 template<UInt ORDER, UInt mydim, UInt ndim>
 class DataProblem {
 private:
+	using Integrator = typename FiniteElement<ORDER, mydim, ndim>::Integrator; // using Integrator = typename SpaceIntegratorHelper::Integrator<ORDER, mydim>;
+	static constexpr UInt EL_NNODES = how_many_nodes(ORDER, mydim);
 	IFDData ifdData_; // for R/C++ interface
 	MeshHandler<ORDER, mydim, ndim> mesh_;
 	std::shared_ptr<Depth> depth_;
 	std::string d_tag; // tag in order to choose the depth
-	using Integrator = typename FiniteElement<ORDER, mydim, ndim>::Integrator; // using Integrator = typename SpaceIntegratorHelper::Integrator<ORDER, mydim>;
-	static constexpr UInt EL_NNODES = how_many_nodes(ORDER, mydim);
 	Eigen::Matrix<Real, Integrator::NNODES, EL_NNODES> PsiQuad_;
 
 	//! A method to compute the matrix which evaluates the basis function at the quadrature Integrator::NNODES
@@ -53,8 +53,8 @@ public:
 	//! A method returning the weights for the integration. It calls the same method of IFDData class.
 	inline const MatrixXr & getWeights() const {return ifdData_.getWeights();} //VectorXr
 	//! A method returning the depth of the data (no integration).
-	inline const VectorXr getDepth() const {return depth_->compute_depth();}
-	inline const VectorXr getDepth(UInt i) const {return depth_->compute_depth(i);}
+	inline const VectorXr getDepth() const {return depth_->depth();}
+	inline const VectorXr getDepth(UInt i) const {return depth_->depth(i);}
 
 	// Getters for mesh
 	//! A method returning the mesh.
