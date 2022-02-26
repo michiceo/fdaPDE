@@ -19,7 +19,7 @@
 #' @export
 #' @examples
 #' library(fdaPDE)
-#' 
+#'
 #' ## Create a 2D mesh over a squared domain
 #' x = seq(0,1, length.out = 3)
 #' y = x
@@ -28,7 +28,7 @@
 #' plot(mesh)
 #' nnodes = dim(mesh$nodes)[1]
 #' FEMbasis = create.FEM.basis(mesh)
-#' 
+#'
 #' ## Generate data
 #' data = NULL
 #' for(ii in 1:50){
@@ -44,10 +44,10 @@
 #'   data = cbind(data, datum)
 #'   colnames(data) = NULL
 #' }
-#' 
+#'
 #' ## Computation of the depth
 #' sol <- IFD.FEM(data = data, FEMbasis = FEMbasis, depth_choice = "MHRD")
-#' 
+#'
 
 IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
 {
@@ -99,10 +99,33 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
 
     weights <- w(n, p)
   }
-  #else{
-    #w <- weights(FEMbasis$mesh$nodes)
-  #}
+  else{
+    weights <- weights(FEMbasis$mesh$nodes)
+    for(i in 1:length(weights)){
+      if(weights[i]<=0 || sum(weights) != 1){
+        warning("Weight function must be a positive function. Default weight function used.")
+        n <- dim(data)[2]
+        p <- dim(data)[1]
 
+        w <- function(nfun, npoints){
+          phi_num <- nfun - rowSums(is.na(data))
+          phi_den <- apply(data, 2, function(x) sum(phi_num[!is.na(x)]))
+
+          output <- matrix(0, npoints, nfun)
+          for(i in 1:nfun){
+            for(j in 1:npoints){
+              output[j, i] <- phi_num[j]/phi_den[i]
+            }
+          }
+
+          output
+        }
+
+        weights <- w(n, p)
+      }
+      break
+    }
+  }
   checkParametersIFD(data, FEMbasis, search, depth_choice)
 
   # weights values for each point of the mesh
@@ -113,7 +136,7 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   weights = as.matrix(weights)
   #w = as.vector(w)
 
-  checkParametersSizeIFD(data, FEMbasis)
+  checkParametersSizeIFD(data, FEMbasis, weights)
   ###################### End checking parameters, sizes and conversion #############################
 
   ###################### C++ Code Execution #########################################################
