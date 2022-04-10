@@ -18,6 +18,7 @@ extern SEXP get_FEM_PDE_matrix( SEXP,SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, S
 extern SEXP get_FEM_PDE_space_varying_matrix( SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP get_FEM_stiff_matrix(SEXP, SEXP, SEXP, SEXP);
 extern SEXP get_integration_points(SEXP, SEXP, SEXP, SEXP);
+extern SEXP Integrated_Functional_Depth(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP); 
 extern SEXP points_projection(SEXP, SEXP);
 extern SEXP R_triangulate_native(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP regression_Laplace( SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -52,6 +53,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"get_FEM_PDE_space_varying_matrix",  (DL_FUNC) &get_FEM_PDE_space_varying_matrix,  20},
     {"get_FEM_stiff_matrix",              (DL_FUNC) &get_FEM_stiff_matrix,               4},
     {"get_integration_points",            (DL_FUNC) &get_integration_points,             4},
+    {"Integrated_Functional_Depth",       (DL_FUNC) &Integrated_Functional_Depth,        9},
     {"points_projection",                 (DL_FUNC) &points_projection,                  2},
     {"R_triangulate_native",              (DL_FUNC) &R_triangulate_native,               8},
     {"regression_Laplace",                (DL_FUNC) &regression_Laplace,                20},
