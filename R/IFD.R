@@ -19,7 +19,7 @@
 #' @export
 #' @examples
 #' library(fdaPDE)
-#'
+#' 
 #' ## Create a 2D mesh over a squared domain
 #' x = seq(0,1, length.out = 3)
 #' y = x
@@ -28,7 +28,7 @@
 #' plot(mesh)
 #' nnodes = dim(mesh$nodes)[1]
 #' FEMbasis = create.FEM.basis(mesh)
-#'
+#' 
 #' ## Generate data
 #' data = NULL
 #' for(ii in 1:50){
@@ -44,10 +44,10 @@
 #'   data = cbind(data, datum)
 #'   colnames(data) = NULL
 #' }
-#'
+#' 
 #' ## Computation of the depth
 #' sol <- IFD.FEM(data = data, FEMbasis = FEMbasis, depth_choice = "MHRD")
-#'
+#' 
 
 IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
 {
@@ -99,33 +99,10 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
 
     weights <- w(n, p)
   }
-  else{
-    weights <- weights(FEMbasis$mesh$nodes)
-    for(i in 1:length(weights)){
-      if(weights[i]<=0 || sum(weights) != 1){
-        warning("Weight function must be a positive function. Default weight function used.")
-        n <- dim(data)[2]
-        p <- dim(data)[1]
+  #else{
+    #w <- weights(FEMbasis$mesh$nodes)
+  #}
 
-        w <- function(nfun, npoints){
-          phi_num <- nfun - rowSums(is.na(data))
-          phi_den <- apply(data, 2, function(x) sum(phi_num[!is.na(x)]))
-
-          output <- matrix(0, npoints, nfun)
-          for(i in 1:nfun){
-            for(j in 1:npoints){
-              output[j, i] <- phi_num[j]/phi_den[i]
-            }
-          }
-
-          output
-        }
-
-        weights <- w(n, p)
-      }
-      break
-    }
-  }
   checkParametersIFD(data, FEMbasis, search, depth_choice)
 
   # weights values for each point of the mesh
@@ -136,7 +113,7 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
   weights = as.matrix(weights)
   #w = as.vector(w)
 
-  checkParametersSizeIFD(data, FEMbasis, weights)
+  checkParametersSizeIFD(data, FEMbasis)
   ###################### End checking parameters, sizes and conversion #############################
 
   ###################### C++ Code Execution #########################################################
@@ -155,15 +132,21 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice)
 
   ###################### Collect Results ############################################################
 
-  data    = bigsol[[1]]
-  order   = bigsol[[2]]
-  weights = bigsol[[3]]
-  ifd     = bigsol[[4]]
-  depth   = bigsol[[5]]
+  data     = bigsol[[1]]
+  order    = bigsol[[2]]
+  weights  = bigsol[[3]]
+  ifd      = bigsol[[4]]
+  depth    = bigsol[[5]]
+  median   = bigsol[[6]]
+  firstQuartile   = bigsol[[7]]
+  thirdQuartile   = bigsol[[8]]
+  lowerWhisker    = bigsol[[9]]
+  upperWhisker    = bigsol[[10]]
 
   # if (ifd == 0. && depth==0.)
     # stop("integral of weight function != 1. Give another weight function.")
 
-  reslist = list(data = data, order = order, weights = weights, ifd = ifd, depth = depth)
+  reslist = list(data = data, order = order, weights = weights, ifd = ifd, depth = depth, median = median, 
+    firstQuartile = firstQuartile, thirdQuartile = thirdQuartile, lowerWhisker = lowerWhisker, upperWhisker = upperWhisker)
   return(reslist)
 }
