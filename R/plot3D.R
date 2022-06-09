@@ -4,13 +4,19 @@
 # Computational Statistics and Data Analysis
 
 
-# Plot a FEM object with jet colormap with range [m,M] 
+# Plot a FEM object with jet colormap with range [m,M]
 plot.FEM = function(FEM, M=NULL, m=NULL, ...){
-  
+
   if (is.null(m)) { m = min(FEM$coeff[!is.na(FEM$coeff)])}
   if (is.null(M)) { M = max(FEM$coeff[!is.na(FEM$coeff)])}
-  triangles = c(t(FEM$FEMbasis$mesh$triangles))
-  ntriangles = nrow(FEM$FEMbasis$mesh$triangles)
+  if (class(FEM$FEMbasis$mesh) == "mesh.3D"){
+    triangles = c(t(FEM$FEMbasis$mesh$tetrahedrons))
+    ntriangles = nrow(FEM$FEMbasis$mesh$tetrahedrons)
+  }
+  else{
+    triangles = c(t(FEM$FEMbasis$mesh$triangles))
+    ntriangles = nrow(FEM$FEMbasis$mesh$triangles)
+  }
   order=FEM$FEMbasis$mesh$order
   nodes=FEM$FEMbasis$mesh$nodes
   edges=matrix(rep(0,6*ntriangles),ncol=2)
@@ -21,32 +27,32 @@ plot.FEM = function(FEM, M=NULL, m=NULL, ...){
   }
   edges=edges[!duplicated(edges),]
   edges<-as.vector(t(edges))
-  
+
   coeff = FEM$coeff
-  
+
   FEMbasis = FEM$FEMbasis
-  
+
   mesh = FEMbasis$mesh
-  
+
   p=jet.col(n=128,alpha=0.8)
   # p <- colorRampPalette(c("#0E1E44","#3E6DD8","#68D061","#ECAF53", "#EB5F5F","#E11F1C"))(128)
   palette(p)
-  
+
   ncolor=length(p)
-  
+
   nsurf = dim(coeff)[[2]]
   for (isurf in 1:nsurf)
   {
     open3d(zoom = zoom, userMatrix = userMatrix, windowRect=windowRect)
-    rgl.pop("lights") 
-    light3d(specular="black") 
-    
+    rgl.pop("lights")
+    light3d(specular="black")
+
     diffrange = M - m
-    
+
     col = coeff[triangles,isurf]
     col = (col - min(coeff[,isurf][!is.na(coeff[,isurf])]))/diffrange*(ncolor-1)+1
     col[is.na(col)] = "grey"
-    
+
     rgl.triangles(x = nodes[triangles ,1], y = nodes[triangles ,2],
                   z=nodes[triangles,3],
                   color = col,...)
@@ -54,7 +60,7 @@ plot.FEM = function(FEM, M=NULL, m=NULL, ...){
     #           z=nodes[edges,3],
     #           color = "black",...)
     aspect3d("iso")
-    
+
     if (nsurf > 1 && isurf<nsurf)
     {readline("Press a button for the next plot...")}
   }

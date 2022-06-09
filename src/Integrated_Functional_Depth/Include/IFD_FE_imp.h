@@ -7,18 +7,18 @@ template<UInt ORDER, UInt mydim, UInt ndim>
 void
 FEIFD<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 {
-    
+
 	VectorXr ifd_sorted = ifd;
 	MatrixXr data_ = dataProblem_.data();
 	int middle;
 	size_t l = data_.cols();
 
-	std::multimap<Real, VectorXr> ifdToFunction; 
+	std::multimap<Real, VectorXr> ifdToFunction;
 	std::map<int, VectorXr> outlier;
 
 	for(Eigen::Index i = 0; i < l; ++i){
 
-		ifdToFunction.insert( std::pair<Real, VectorXr>(ifd_sorted[i],data_.col(i)) );
+		ifdToFunction.insert( std::pair<Real, VectorXr>(ifd_sorted[i],data_.col(i)) ); // I have ordered pairs depth-function
 	}
 
 	// definisco la mediana come la funzione con ifd maggiore
@@ -26,6 +26,7 @@ FEIFD<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 
 	median = VectorXr::Zero(data_.rows());
 
+  // in case there are more function with the same max depth
     std::pair<std::multimap<Real, VectorXr>::iterator,std::multimap<Real, VectorXr>::iterator> mediane = ifdToFunction.equal_range(ifdToFunction.crbegin()->first);
 	for(auto m = mediane.first; m != mediane.second; ++m){
 		for(Eigen::Index i = 0; i < data_.rows(); ++i){
@@ -78,7 +79,7 @@ FEIFD<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 	lowerWhisker = firstQuartile;
 	upperWhisker = thirdQuartile;
 
-	for(Eigen::Index i = 0; i < data_.cols(); ++i){
+	for(Eigen::Index i = 0; i < data_.rows(); ++i){
 		middle = 0;
 	 	for (auto it3 = ifdToFunction.begin(); middle < l/2 && it3 != ifdToFunction.end(); ++it3){
 

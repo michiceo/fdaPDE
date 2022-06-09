@@ -15,7 +15,7 @@ plot.image.2D = function(fun, max, min){
   zlim = c(min, max)
 
   image(x,y,z,zlim, axes = FALSE)
-  #contour(x,y,z, add = TRUE)
+  contour(x,y,z, add = TRUE)
 }
 
 # plot image with contour of the function VS lower whisker / Q1
@@ -35,8 +35,8 @@ plot.image.diff_lw_q1.2D = function(func,lw_q1, max, min){
   z[which(zz > 0)] = NA;
   zlim = c(min, max)
 
-  image(x,y,z,zlim, axes = FALSE)
-  #contour(x,y,z, add = TRUE)
+  image(x,y,z,zlim, axes = FALSE, border = "black")
+  # contour(x,y,z, add = TRUE)
 }
 
 # plot image with contour of the function VS upper whisker / Q3
@@ -57,7 +57,7 @@ plot.image.diff_uw_q3.2D = function(func,uw_q3, max, min){
   zlim = c(min, max)
 
   image(x,y,z,zlim, axes = FALSE)
-  #contour(x,y,z, add = TRUE)
+  # contour(x,y,z, add = TRUE)
 }
 
 #if(3D)
