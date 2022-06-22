@@ -7,7 +7,7 @@
 #include "../../FE_Assemblers_Solvers/Include/Matrix_Assembler.h"
 #include "../../Global_Utilities/Include/Solver_Definitions.h"
 
-#include "../Include/IFD_Data_Problem.h"
+#include "../Include/IFD_Integration.h"
 
 extern "C" {
 
