@@ -20,10 +20,15 @@ template<UInt ORDER, UInt mydim, UInt ndim>
 const VectorXr
 DepthIntegration<ORDER, mydim, ndim>::integrate_depth(const MatrixXr& X) const
 {
+	Real time1 = omp_get_wtime();
+
+	omp_set_num_threads(2);
+
 	using EigenMap2WEIGHTS = Eigen::Map<const Eigen::Matrix<Real, Integrator::NNODES, 1>>;
 
 	VectorXr total_sum = VectorXr::Zero(X.cols());
 
+	#pragma omp parallel for default(none) shared(total_sum, X)
 	for(UInt triangle = 0; triangle < mesh_.num_elements(); ++triangle){
 
 		MatrixXr X_cap = MatrixXr::Zero(Integrator::NNODES, 1);
@@ -55,6 +60,7 @@ DepthIntegration<ORDER, mydim, ndim>::integrate_depth(const MatrixXr& X) const
 			Eigen::Matrix<Real, Integrator::NNODES, 1> weights = (PsiQuad_*sub_w.col(j)).array();
 			Eigen::DiagonalMatrix<Real, Integrator::NNODES, Integrator::NNODES> weighdiag;
 			weighdiag.diagonal() = weights;
+			#pragma imp atomic update
 			total_sum[j] += ( weighdiag * depth_cap->depth(j) ).dot(EigenMap2WEIGHTS(&Integrator::WEIGHTS[0])) * tri_activated.getMeasure();
 		}
 	}

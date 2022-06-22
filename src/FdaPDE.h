@@ -18,6 +18,7 @@
 #include <stack>
 #include <set>
 #include "Global_Utilities/Include/Make_Unique.h"
+#include <omp.h>
 
 // For debugging purposes
 //#include <Eigen/StdVector>
@@ -34,7 +35,6 @@
 
 typedef double Real;
 typedef int UInt;
-
 
 typedef Eigen::Matrix<Real,Eigen::Dynamic,Eigen::Dynamic> MatrixXr;
 typedef Eigen::Matrix<UInt,Eigen::Dynamic,Eigen::Dynamic> MatrixXi;
