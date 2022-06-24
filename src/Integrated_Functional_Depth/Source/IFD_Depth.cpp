@@ -6,9 +6,6 @@ Depth::isnan_vector(const VectorXr& v) const
 {
   UInt number_nan=0;
 
-  omp_set_num_threads(2);
-
-  #pragma omp parallel for default(none) shared(v) reduction(+:number_nan)
   for(size_t i=0; i<v.size(); ++i)
     number_nan += isnan(v[i]);
 
@@ -138,6 +135,6 @@ MBD::compute_depth(UInt k) const
 			mbd[j] = 0;
 		}
   }
-  
+
 	return mbd;
 }
