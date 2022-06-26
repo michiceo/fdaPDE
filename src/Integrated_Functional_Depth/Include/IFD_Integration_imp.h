@@ -45,7 +45,7 @@ DepthIntegration<ORDER, mydim, ndim>::integrate_depth(const MatrixXr& X) const
 			Eigen::Matrix<Real, Integrator::NNODES, 1> x_cap = (PsiQuad_*sub_x).array();
 			X_cap.col(X_cap.cols()-1) = x_cap; // fill the matrix with the transformed functions (due to quadrature formula evaluation)
 
-			if(x != X.col( X.cols()-1 )) // O(1)
+			if(x != X.col( X.cols()-1 ))
 				X_cap.conservativeResize(X_cap.rows(), X_cap.cols()+1);
 		}
 

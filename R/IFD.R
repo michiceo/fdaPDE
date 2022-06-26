@@ -13,11 +13,11 @@
 #' \item{\code{data}}{A matrix of dimensions #mesh nodes-by-#functions containing the data used in the algorithm.}
 #' \item{\code{order}}{Order of the finite elements given as input in IFD.FEM().}
 #' \item{\code{weights}}{Evaluation of weight function at nodes.}
-#' \item{\code{ifd}}{Weighted depth (Integrated Functional Depth) computed.}
-#' \item{\code{depth}}{Non-weighted depth computed.}
-#' @description This function implements the formula to compute the integrated depth for a set of functions over complicated multidimensional domains.
+#' \item{\code{ifd}}{Weighted depth (Integrated Functional Depth).}
+#' \item{\code{median, firstQuartile, thirdQuartile, lowerWhisker, upperWhisker}}{The quantities to visualize the "functional boxplot".}
+#' @description This function implements the formula to compute the integrated depth for a set of functions over complicated multidimensional domains, with the option to return also the "functional boxplot".
 #' The computation relies only on the C++ implementation of the algorithm.
-#' @usage IFD.FEM(data, FEMbasis, weights, search = "tree", depth_choice)
+#' @usage IFD.FEM(data, FEMbasis, weights = NULL, search = "tree", depth_choice, plot = TRUE, func = data[,1])
 #' @export
 #' @examples
 #' library(fdaPDE)
@@ -51,7 +51,7 @@
 #' sol <- IFD.FEM(data = data, FEMbasis = FEMbasis, depth_choice = "MHRD")
 #'
 
-IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice, plot = FALSE, func = data[,1])
+IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choice, plot = FALSE, func = data[,1])
 {
   if(class(FEMbasis$mesh) == "mesh.2D"){
     ndim = 2
@@ -81,7 +81,7 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice, plot
 
   ###################### Checking parameters, sizes and conversion #################################
 
-  if(missing("weights")){
+  if(weights == NULL){
     n <- dim(data)[2]
     p <- dim(data)[1]
 
@@ -101,19 +101,15 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice, plot
 
     weights <- w(n, p)
   }
-  #else{
-    #w <- weights(FEMbasis$mesh$nodes)
-  #}
+  else{
+    w <- weights(FEMbasis$mesh$nodes)
+  }
 
   checkParametersIFD(data, FEMbasis, search, depth_choice)
-
-  # weights values for each point of the mesh
-  # w<-w_func(FEMbasis$mesh$nodes)
 
   ## Coverting to format for internal usage
   data = as.matrix(data)
   weights = as.matrix(weights)
-  #w = as.vector(w)
 
   checkParametersSizeIFD(data, FEMbasis)
   ###################### End checking parameters, sizes and conversion #############################
@@ -138,51 +134,50 @@ IFD.FEM <- function(data, FEMbasis, weights, search = "tree", depth_choice, plot
   order    = bigsol[[2]]
   weights  = bigsol[[3]]
   ifd      = bigsol[[4]]
-  depth    = bigsol[[5]]
-  median   = bigsol[[6]]
-  firstQuartile   = bigsol[[7]]
-  thirdQuartile   = bigsol[[8]]
-  lowerWhisker    = bigsol[[9]]
-  upperWhisker    = bigsol[[10]]
+  median   = bigsol[[5]]
+  firstQuartile   = bigsol[[6]]
+  thirdQuartile   = bigsol[[7]]
+  lowerWhisker    = bigsol[[8]]
+  upperWhisker    = bigsol[[9]]
 
   if(plot){
     if(class(FEMbasis$mesh) == "mesh.2D"){
       max<-max(data)
       min<-min(data)
-      par(mfrow=c(2, 3))
+      par(mfrow=c(1, 5))
       plot.image.2D(FEM(median, FEMbasis), max, min)
       plot.image.2D(FEM(firstQuartile, FEMbasis), max, min)
       plot.image.2D(FEM(thirdQuartile, FEMbasis), max, min)
       plot.image.2D(FEM(lowerWhisker, FEMbasis), max, min)
       plot.image.2D(FEM(upperWhisker, FEMbasis), max, min)
 
-      par(mfrow=c(2, 2))
+      par(mfrow=c(1, 5))
       plot.image.diff_lw_q1.2D(FEM(func, FEMbasis), FEM(lowerWhisker, FEMbasis ), max, min)
       plot.image.diff_lw_q1.2D(FEM(func, FEMbasis), FEM(firstQuartile, FEMbasis ), max, min)
+      plot.image.2D(FEM(func, FEMbasis), max, min)
       plot.image.diff_uw_q3.2D(FEM(func, FEMbasis), FEM(thirdQuartile, FEMbasis ), max, min)
       plot.image.diff_uw_q3.2D(FEM(func, FEMbasis), FEM(upperWhisker, FEMbasis ), max, min)
     }else{
       max<-max(data)
       min<-min(data)
-      par(mfrow=c(2, 3))
       plot(FEM(median, FEMbasis), max, min)
       plot(FEM(firstQuartile, FEMbasis), max, min)
       plot(FEM(thirdQuartile, FEMbasis), max, min)
       plot(FEM(lowerWhisker, FEMbasis), max, min)
       plot(FEM(upperWhisker, FEMbasis), max, min)
 
-      par(mfrow=c(2, 2))
       plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(thirdQuartile, FEMbasis), max, min)
       plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(firstQuartile, FEMbasis), max, min)
       plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(upperWhisker, FEMbasis), max, min)
       plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(lowerWhisker, FEMbasis), max, min)
+      plot(FEM(func, FEMbasis), max, min)
     }
   }
 
   # if (ifd == 0. && depth==0.)
     # stop("integral of weight function != 1. Give another weight function.")
 
-  reslist = list(data = data, order = order, weights = weights, ifd = ifd, depth = depth, median = median,
+  reslist = list(data = data, order = order, weights = weights, ifd = ifd, median = median,
     firstQuartile = firstQuartile, thirdQuartile = thirdQuartile, lowerWhisker = lowerWhisker, upperWhisker = upperWhisker)
   return(reslist)
 }

@@ -22,7 +22,7 @@ public:
 	//! A constructor
 	FunctionalBoxplot(const DepthIntegration<ORDER, mydim, ndim>& dI): depthIntegration_(dI){
 		ifd = depthIntegration_.integrate_depth(depthIntegration_.data());
-		median = VectorXr::Zero(depthIntegration_.data().rows());};
+	}
 
 	void calculateFunctionalBoxplot();
 

@@ -1,5 +1,5 @@
 # Supplementary material for:
-# A roughness penalty approach to estimate densities over two-dimensional manifolds
+# A roughness penalty approach to estimate densities over three-dimensional manifolds
 # by Eleonora Arnone, Federico Ferraccioli, Clara Pigolotti, Laura M. Sangalli
 # Computational Statistics and Data Analysis
 
@@ -9,24 +9,37 @@ plot.FEM = function(FEM, M=NULL, m=NULL, ...){
 
   if (is.null(m)) { m = min(FEM$coeff[!is.na(FEM$coeff)])}
   if (is.null(M)) { M = max(FEM$coeff[!is.na(FEM$coeff)])}
+  order=FEM$FEMbasis$mesh$order
+  nodes=FEM$FEMbasis$mesh$nodes
   if (class(FEM$FEMbasis$mesh) == "mesh.3D"){
     triangles = c(t(FEM$FEMbasis$mesh$tetrahedrons))
     ntriangles = nrow(FEM$FEMbasis$mesh$tetrahedrons)
+
+    faces=matrix(rep(0,12*ntriangles),ncol=3)
+    for(i in 0:(ntriangles-1)){
+      faces[4*i+1,]=c(triangles[4*order*i+1],triangles[4*order*i+2],triangles[4*order*i+3])
+      faces[4*i+2,]=c(triangles[4*order*i+1],triangles[4*order*i+2],triangles[4*order*i+4])
+      faces[4*i+3,]=c(triangles[4*order*i+1],triangles[4*order*i+3],triangles[4*order*i+4])
+      faces[4*i+4,]=c(triangles[4*order*i+2],triangles[4*order*i+3],triangles[4*order*i+4])
+    }
+    faces=faces[!duplicated(faces),]
+    edges<-as.vector(t(faces))
+
+    #edges <- as.vector(t(FEMbasis$mesh$faces[as.logical(FEMbasis$mesh$facesmarkers),]))
   }
   else{
     triangles = c(t(FEM$FEMbasis$mesh$triangles))
     ntriangles = nrow(FEM$FEMbasis$mesh$triangles)
+
+    edges=matrix(rep(0,6*ntriangles),ncol=2)
+    for(i in 0:(ntriangles-1)){
+      edges[3*i+1,]=c(triangles[3*order*i+1],triangles[3*order*i+2])
+      edges[3*i+2,]=c(triangles[3*order*i+1],triangles[3*order*i+3])
+      edges[3*i+3,]=c(triangles[3*order*i+2],triangles[3*order*i+3])
+    }
+    edges=edges[!duplicated(edges),]
+    edges<-as.vector(t(edges))
   }
-  order=FEM$FEMbasis$mesh$order
-  nodes=FEM$FEMbasis$mesh$nodes
-  edges=matrix(rep(0,6*ntriangles),ncol=2)
-  for(i in 0:(ntriangles-1)){
-    edges[3*i+1,]=c(triangles[3*order*i+1],triangles[3*order*i+2])
-    edges[3*i+2,]=c(triangles[3*order*i+1],triangles[3*order*i+3])
-    edges[3*i+3,]=c(triangles[3*order*i+2],triangles[3*order*i+3])
-  }
-  edges=edges[!duplicated(edges),]
-  edges<-as.vector(t(edges))
 
   coeff = FEM$coeff
 
@@ -40,29 +53,57 @@ plot.FEM = function(FEM, M=NULL, m=NULL, ...){
 
   ncolor=length(p)
 
-  nsurf = dim(coeff)[[2]]
-  for (isurf in 1:nsurf)
-  {
-    open3d(zoom = zoom, userMatrix = userMatrix, windowRect=windowRect)
-    rgl.pop("lights")
-    light3d(specular="black")
+  if (class(FEM$FEMbasis$mesh) == "mesh.3D"){
+    nsurf = dim(coeff)[[2]]
+    for (isurf in 1:nsurf)
+    {
+      open3d(zoom = zoom, userMatrix = userMatrix, windowRect=windowRect)
+      rgl.pop("lights")
+      light3d(specular="black")
 
-    diffrange = M - m
+      diffrange = M - m
 
-    col = coeff[triangles,isurf]
-    col = (col - min(coeff[,isurf][!is.na(coeff[,isurf])]))/diffrange*(ncolor-1)+1
-    col[is.na(col)] = "grey"
+      col = coeff[edges,isurf]
+      col = (col - min(coeff[,isurf][!is.na(coeff[,isurf])]))/diffrange*(ncolor-1)+1
+      col[is.na(col)] = "grey"
 
-    rgl.triangles(x = nodes[triangles ,1], y = nodes[triangles ,2],
-                  z=nodes[triangles,3],
-                  color = col,...)
-    # rgl.lines(x = nodes[edges ,1], y = nodes[edges ,2],
-    #           z=nodes[edges,3],
-    #           color = "black",...)
-    aspect3d("iso")
+      rgl.triangles(x = nodes[edges ,1], y = nodes[edges ,2],
+                    z=nodes[edges,3],
+                    color = col,...)
+      # rgl.lines(x = nodes[edges ,1], y = nodes[edges ,2],
+      #           z=nodes[edges,3],
+      #           color = "black",...)
+      aspect3d("iso")
 
-    if (nsurf > 1 && isurf<nsurf)
-    {readline("Press a button for the next plot...")}
+      if (nsurf > 1 && isurf<nsurf)
+      {readline("Press a button for the next plot...")}
+    }
+  }
+  else{
+    nsurf = dim(coeff)[[2]]
+    for (isurf in 1:nsurf)
+    {
+      open3d(zoom = zoom, userMatrix = userMatrix, windowRect=windowRect)
+      rgl.pop("lights")
+      light3d(specular="black")
+
+      diffrange = M - m
+
+      col = coeff[triangles,isurf]
+      col = (col - min(coeff[,isurf][!is.na(coeff[,isurf])]))/diffrange*(ncolor-1)+1
+      col[is.na(col)] = "grey"
+
+      rgl.triangles(x = nodes[triangles ,1], y = nodes[triangles ,2],
+                    z=nodes[triangles,3],
+                    color = col,...)
+      # rgl.lines(x = nodes[edges ,1], y = nodes[edges ,2],
+      #           z=nodes[edges,3],
+      #           color = "black",...)
+      aspect3d("iso")
+
+      if (nsurf > 1 && isurf<nsurf)
+      {readline("Press a button for the next plot...")}
+    }
   }
 }
 

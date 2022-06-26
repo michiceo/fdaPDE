@@ -21,19 +21,19 @@ Depth::ranking(const VectorXr& v) const
 
   std::sort(vsorted.data(), vsorted.data() + vsorted.size());
 
-  std::map<double, int> ranks;
+  std::map<Real, int> ranks;
   int rank = 1;
 
   for(Eigen::Index index = 0; index < v.size(); index++)
   {
-    double element = vsorted[index];
+    Real element = vsorted[index];
     ranks[element] = rank;
     rank++;
   }
 
   for(Eigen::Index index = 0; index < v.size(); index++)
   {
-    double element = v[index];
+    Real element = v[index];
     vrank[index] = ranks[element];
   }
 	return vrank;
@@ -45,35 +45,11 @@ Depth(m)
 }
 
 const std::tuple<VectorXr, VectorXr, VectorXr>// VectorXr
-MHRD::compute_depth() const
-{
-	VectorXr mepi  = VectorXr::Zero(this->n_);
-	VectorXr mhipo = VectorXr::Zero(this->n_);
-	VectorXr hrd   = VectorXr::Zero(this->n_);
-
-	for(Eigen::Index j=0; j < this->p_; ++j){
-		VectorXi rmat = ranking(m_.row(j));
-
-	  UInt number_nan = isnan_vector(m_.row(j));
-
-		for(Eigen::Index i=0; i < this->n_ - number_nan; ++i){
-			mepi[i]  = mepi[i]  + (double)(this->n_ - number_nan - rmat[i] + 1)/((double) (this->n_ - number_nan)*this->p_);
-			mhipo[i] = mhipo[i] + (double)(rmat[i])/((double) (this->n_ - number_nan)*this->p_);
-		}
-	}
-
-	for(Eigen::Index i=0; i < this->n_; ++i){
-		hrd[i] = std::min(mepi[i], mhipo[i]);
-	}
-	return std::make_tuple(mepi, mhipo, hrd);
-}
-
-const std::tuple<VectorXr, VectorXr, VectorXr>// VectorXr
 MHRD::compute_depth(UInt k) const
 {
-	VectorXr mepi  = VectorXr::Zero(this->p_);
-	VectorXr mhipo = VectorXr::Zero(this->p_);
-	VectorXr hrd   = VectorXr::Zero(this->p_);
+  VectorXr mhrd = VectorXr::Zero(this->p_);
+  VectorXr mepi = VectorXr::Zero(this->p_);
+  VectorXr mhipo = VectorXr::Zero(this->p_);
 
   for(Eigen::Index j=0; j < this->p_; ++j){
 
@@ -88,10 +64,10 @@ MHRD::compute_depth(UInt k) const
 			mepi[j] = 0;
 			mhipo[j] = 0;
 		}
-	  hrd[j] = std::min(mepi[j], mhipo[j]);
+	  mhrd[j] = std::min(mepi[j], mhipo[j]);
 	}
 
-	return std::make_tuple(mepi, mhipo, hrd);
+	return std::make_tuple(mepi, mhipo, mhrd);
 }
 
 
@@ -102,26 +78,9 @@ Depth(m)
 }
 
 const VectorXr
-MBD::compute_depth() const
-{
-	VectorXr mbd  = VectorXr::Zero(this->n_);
-
-	for(Eigen::Index j=0; j < this->p_; ++j){
-		VectorXi rmat = ranking(m_.row(j));
-
-	  UInt number_nan = isnan_vector(m_.row(j));
-
-		for(Eigen::Index i=0; i < this->n_ - number_nan; ++i){
-			mbd[i] += (double) ((this->n_ - number_nan - rmat[i])*(rmat[i] - 1) + (this->n_ - number_nan - 1)) / ((double) (this->n_ - number_nan)*(this->n_ - number_nan - 1)*this->p_/2);
-    }
-	}
-	return mbd;
-}
-
-const VectorXr
 MBD::compute_depth(UInt k) const
 {
-	VectorXr mbd   = VectorXr::Zero(this->p_);
+	VectorXr mbd = VectorXr::Zero(this->p_);
 
 	for(Eigen::Index j=0; j < this->p_; ++j){
 
