@@ -7,7 +7,7 @@ IFDData::IFDData(SEXP Rdata, SEXP Rorder, SEXP Rweights)
 	setWeights(Rweights);
 }
 
-IFDData::IFDData(const MatrixXr & data, const UInt & order, const MatrixXr & weights): //VectorXr
+IFDData::IFDData(const MatrixXr & data, const UInt & order, const MatrixXr & weights):
 		data_(data), order_(order), weights_(weights)
 {
 }
@@ -32,12 +32,6 @@ IFDData::setData(SEXP Rdata)
 void
 IFDData::setWeights(SEXP Rweights)
 {
-  /*UInt dimc = Rf_length(Rweights);
-  weights_.resize(dimc);
-  for(UInt i=0; i<dimc; i++)
-  {
-      weights_[i] = REAL(Rweights)[i];
-  }*/
   const RNumericMatrix w(Rweights);
   UInt n_=w.nrows(), p_=w.ncols();
   if(n_>0){

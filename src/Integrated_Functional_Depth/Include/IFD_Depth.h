@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include "../../FdaPDE.h"
 
 // This file contains the possible functional depth measures choices
@@ -12,6 +13,11 @@
 /*! @brief An abstract base class dealing with the depth computation.
 */
 
+namespace DepthOutputTypeHelper{
+	template<typename Tuple>
+	using output_type = typename std::conditional<std::is_same<VectorXr,Tuple>::value,VectorXr,Tuple>::type;
+};
+
 class Depth{
 
 public:
@@ -19,8 +25,6 @@ public:
 	Depth(const MatrixXr& m): m_(m){};
 	//! A Destructor.
 	virtual ~Depth(){};
-	//! A pure virtual method to compute the depth of all data.
-	virtual const VectorXr depth() const = 0;
 	//! A pure virtual method to compute the depth of the k-th function at each mesh node.
 	virtual const VectorXr depth(UInt k) const = 0;
 
@@ -42,15 +46,16 @@ protected:
 */
 class MHRD: public Depth{
 
+	using output_type = typename DepthOutputTypeHelper::output_type<std::tuple<VectorXr, VectorXr, VectorXr>>;
+
+private:
+	//! A method to compute the depth chosen of the k-th function at each mesh node.
+	const output_type compute_depth(UInt k) const;
+
 public:
 	//! A Constructor
 	MHRD(const MatrixXr& m);
-	//! A method to compute the depth chosen of all data.
-	const std::tuple<VectorXr, VectorXr, VectorXr> compute_depth() const ;
-	//! A method to compute the depth chosen of the k-th function at each mesh node.
-	const std::tuple<VectorXr, VectorXr, VectorXr> compute_depth(UInt k) const ;
-	//! Overriden methods
-	const VectorXr depth() const override {return std::get<2>(this->compute_depth());};
+	//! Overriden method
 	const VectorXr depth(UInt k) const override {return std::get<2>(this->compute_depth(k));};
 
 };
@@ -59,15 +64,16 @@ public:
 */
 class MBD: public Depth{
 
+	using output_type = typename DepthOutputTypeHelper::output_type<VectorXr>;
+
+private:
+	//! A method to compute the depth chosen of the k-th function at each mesh node.
+	const output_type compute_depth(UInt k) const;
+
 public:
 	//! A Constructor
 	MBD(const MatrixXr& m);
-	//! A method to compute the depth chosen of all data.
-	const VectorXr compute_depth() const ;
-	//! A method to compute the depth chosen of the k-th function at each mesh node.
-	const VectorXr compute_depth(UInt k) const ;
-	//! Overriden methods
-	const VectorXr depth() const override {return this->compute_depth();};
+	//! Overriden method
 	const VectorXr depth(UInt k) const override {return this->compute_depth(k);};
 
 };

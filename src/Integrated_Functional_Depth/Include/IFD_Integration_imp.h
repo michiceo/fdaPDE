@@ -32,12 +32,12 @@ DepthIntegration<ORDER, mydim, ndim>::integrate_depth(const MatrixXr& X) const
 	for(UInt triangle = 0; triangle < mesh_.num_elements(); ++triangle){
 
 		MatrixXr X_cap = MatrixXr::Zero(Integrator::NNODES, 1);
-		std::unique_ptr<Depth> depth_cap;
 
 		Element<EL_NNODES, mydim, ndim> tri_activated = mesh_.getElement(triangle);
 
 		MatrixXr sub_w = MatrixXr::Zero(EL_NNODES, X.cols());
 
+		//#pragma omp parallel for default(none) shared(X, X_cap, sub_w, tri_activated)
 		for(Eigen::Index j=0; j < X.cols(); ++j){
 			const VectorXr& x = X.col(j);
 
@@ -48,22 +48,27 @@ DepthIntegration<ORDER, mydim, ndim>::integrate_depth(const MatrixXr& X) const
 			}
 
 			Eigen::Matrix<Real, Integrator::NNODES, 1> x_cap = (PsiQuad_*sub_x).array();
-			X_cap.col(X_cap.cols()-1) = x_cap; // fill the matrix with the transformed functions (due to quadrature formula evaluation)
+			X_cap.col(X_cap.cols()-1) = x_cap;
 
-			if(x != X.col( X.cols()-1 )) // O(1)
+			if(x != X.col( X.cols()-1 ))
 				X_cap.conservativeResize(X_cap.rows(), X_cap.cols()+1);
 		}
 
-		depth_cap = Depth_factory::createDepth(X_cap, d_tag);
+		std::unique_ptr<Depth> depth_cap = Depth_factory::createDepth(X_cap, d_tag);
 
+		//#pragma omp parallel for default(none) shared(total_sum, sub_w, depth_cap, X, tri_activated)
 		for(Eigen::Index j=0; j < X.cols(); ++j){
 			Eigen::Matrix<Real, Integrator::NNODES, 1> weights = (PsiQuad_*sub_w.col(j)).array();
 			Eigen::DiagonalMatrix<Real, Integrator::NNODES, Integrator::NNODES> weighdiag;
 			weighdiag.diagonal() = weights;
-			#pragma imp atomic update
+			#pragma omp atomic update
 			total_sum[j] += ( weighdiag * depth_cap->depth(j) ).dot(EigenMap2WEIGHTS(&Integrator::WEIGHTS[0])) * tri_activated.getMeasure();
 		}
 	}
+	Real time2 = omp_get_wtime();
+
+	Real time12 = (time2-time1);
+	Rprintf("%f\n", time12);
 	return total_sum;
 }
 

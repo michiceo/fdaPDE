@@ -32,10 +32,13 @@ plot.image.diff_lw_q1.2D = function(func,lw_q1, max, min){
   location = expand.grid(x,y);
   zz = matrix(eval.FEM(func,location) - eval.FEM(lw_q1,location),nrow=n,ncol=m);
   z = matrix(eval.FEM(func,location),nrow=n,ncol=m);
+  k = matrix(eval.FEM(func,location),nrow=n,ncol=m);
   z[which(zz > 0)] = NA;
+  g_scale <- grey.colors(10, start = 0.3, end = 0.9, gamma = 2.2, rev = FALSE)
   zlim = c(min, max)
 
-  image(x,y,z,zlim, axes = FALSE, border = "black")
+  image(x,y,k,zlim,col=g_scale, axes=FALSE, border="black")
+  image(x,y,z,zlim, axes = FALSE, border = "black", add = TRUE)
   # contour(x,y,z, add = TRUE)
 }
 
@@ -53,10 +56,13 @@ plot.image.diff_uw_q3.2D = function(func,uw_q3, max, min){
   location = expand.grid(x,y);
   zz = matrix(eval.FEM(uw_q3,location) - eval.FEM(func,location),nrow=n,ncol=m);
   z = matrix(eval.FEM(func,location),nrow=n,ncol=m);
+  k = matrix(eval.FEM(func,location),nrow=n,ncol=m);
   z[which(zz > 0)] = NA;
+  g_scale <- grey.colors(10, start = 0.3, end = 0.9, gamma = 2.2, rev = FALSE)
   zlim = c(min, max)
 
-  image(x,y,z,zlim, axes = FALSE)
+  image(x,y,k,zlim,col=g_scale, axes=FALSE, border="black")
+  image(x,y,z,zlim, axes = FALSE, border = "black", add = TRUE)
   # contour(x,y,z, add = TRUE)
 }
 

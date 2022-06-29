@@ -32,7 +32,7 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 
 	// Copy result in R memory
 	SEXP result = NILSXP;
-	result = PROTECT(Rf_allocVector(VECSXP, 10));
+	result = PROTECT(Rf_allocVector(VECSXP, 9));
 	SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, depthIntegration.dataRows(), depthIntegration.dataCols()));
 	SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
 	SET_VECTOR_ELT(result, 2, Rf_allocMatrix(REALSXP, depthIntegration.dataRows(), depthIntegration.dataCols()));

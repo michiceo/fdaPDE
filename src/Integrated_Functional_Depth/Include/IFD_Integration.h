@@ -47,7 +47,7 @@ public:
 	//! A method returning the the input order. It calls the same method of IFDData class.
 	UInt getOrder() const {return ifdData_.getOrder();}
 	//! A method returning the weights for the integration. It calls the same method of IFDData class.
-	const MatrixXr & getWeights() const {return ifdData_.getWeights();} //VectorXr
+	const MatrixXr & getWeights() const {return ifdData_.getWeights();}
 
 	// Getters for mesh
 	//! A method returning the mesh.

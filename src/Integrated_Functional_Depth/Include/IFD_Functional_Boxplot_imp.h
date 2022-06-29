@@ -3,6 +3,8 @@
 
 #include <map>
 
+typedef std::multimap<Real, VectorXr>::iterator multimap_iterator;
+
 template<UInt ORDER, UInt mydim, UInt ndim>
 void
 FunctionalBoxplot<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
@@ -27,7 +29,7 @@ FunctionalBoxplot<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 	median = VectorXr::Zero(data_.rows());
 
   // in case there are more function with the same max depth:
-  std::pair<std::multimap<Real, VectorXr>::iterator,std::multimap<Real, VectorXr>::iterator> mediane = ifdToFunction.equal_range(ifdToFunction.crbegin()->first);
+  std::pair<multimap_iterator, multimap_iterator> mediane = ifdToFunction.equal_range(ifdToFunction.crbegin()->first);
 
 	for(auto m = mediane.first; m != mediane.second; ++m){
 		for(Eigen::Index i = 0; i < data_.rows(); ++i){
@@ -36,8 +38,8 @@ FunctionalBoxplot<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 	}
 
 	// quartiles are min and max of the area containing 50% of data
-	VectorXr firstQuartile = median;
-	VectorXr thirdQuartile = median;
+	firstQuartile = median;
+	thirdQuartile = median;
 	// IQR
 	VectorXr interQuartileRange = VectorXr::Zero(data_.rows());
 	// whisker
@@ -45,6 +47,9 @@ FunctionalBoxplot<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 	VectorXr upperWhiskerFittizio = VectorXr::Zero(data_.rows());
 
 	//middle = 0;
+
+	// std::for_each(mepi.data(), mepi.data() + mepi.size(), [this] (Real & r) {r /= (double) (this->n_ - 1);});
+	// std::for_each(mhipo.data(), mhipo.data() + mhipo.size(), [this] (Real & r) {r /= (double) (this->n_ - 1);});
 
 	for(Eigen::Index i = 0; i < data_.rows(); ++i){
 
