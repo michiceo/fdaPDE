@@ -25,13 +25,12 @@ private:
 	// Auxiliary methods used in the constructor
 	void setData(SEXP Rdata);
 	void setWeights(SEXP Rweights);
-	UInt nThreads_;
 
 public:
 	// Constructors
 	IFDData(){};
 
-	explicit IFDData(const MatrixXr & data, const UInt & order, const MatrixXr & weights, const UInt & nThreads); //VectorXr
+	explicit IFDData(const MatrixXr & data, const UInt & order, const MatrixXr & weights); //VectorXr
 
 	/*! Costructor useful for the R C++ interface.
 				It initializes the object storing the R given objects.
@@ -39,7 +38,7 @@ public:
 				\param Rorder an R-integer containing the order of the approximating basis.
 				\param Rweights an R-vector containing the weights for the integration.
 	*/
-	explicit IFDData(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP RnThreads);
+	explicit IFDData(SEXP Rdata, SEXP Rorder, SEXP Rweights);
 
 	// Getters
 	//! A method to access the data.
@@ -62,8 +61,6 @@ public:
 	UInt getOrder() const {return order_;}
 	//! A method returning the weights for the integration.
 	const MatrixXr & getWeights() const {return weights_;} //VectorXr
-	//! A method returning the number of threads to use in the omp parallelization to compute integrals.
-	UInt getNThreads() const {return nThreads_;}
 
 	// Print
 	//! A method printing data.

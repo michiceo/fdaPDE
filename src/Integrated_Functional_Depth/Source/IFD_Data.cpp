@@ -1,15 +1,14 @@
 #include "../Include/IFD_Data.h"
 
-IFDData::IFDData(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP RnThreads)
+IFDData::IFDData(SEXP Rdata, SEXP Rorder, SEXP Rweights)
 {
 	setData(Rdata);
 	order_ = INTEGER(Rorder)[0];
 	setWeights(Rweights);
-	nThreads_ = INTEGER(RnThreads)[0];
 }
 
-IFDData::IFDData(const MatrixXr & data, const UInt & order, const MatrixXr & weights, const UInt & nThreads): //VectorXr
-		data_(data), order_(order), weights_(weights), nThreads_(nThreads)
+IFDData::IFDData(const MatrixXr & data, const UInt & order, const MatrixXr & weights): //VectorXr
+		data_(data), order_(order), weights_(weights)
 {
 }
 

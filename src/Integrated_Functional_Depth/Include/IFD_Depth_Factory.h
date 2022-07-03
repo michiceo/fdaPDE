@@ -8,17 +8,17 @@
 
 class Depth_factory {
 public:
-	static std::shared_ptr<Depth>
+	static std::unique_ptr<Depth>
 	createDepth(const MatrixXr& m, const std::string& d)
 	{
 		if(d == "MHRD")
-			return std::make_shared<MHRD>(m);
+			return make_unique<MHRD>(m);
 		else if(d == "MBD")
-			return std::make_shared<MBD>(m);
+			return make_unique<MBD>(m);
 		else
 		{
 			Rprintf("Unavailable depth choice - using Modified Band Depth");
-			return std::make_shared<MBD>(m);
+			return make_unique<MBD>(m);
 		}
 	}
 };

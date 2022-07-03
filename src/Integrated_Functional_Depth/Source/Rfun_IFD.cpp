@@ -7,7 +7,7 @@
 #include "../../FE_Assemblers_Solvers/Include/Matrix_Assembler.h"
 #include "../../Global_Utilities/Include/Solver_Definitions.h"
 
-#include "../Include/IFD_Data_Problem.h"
+#include "../Include/IFD_Integration.h"
 
 extern "C" {
 
@@ -22,12 +22,11 @@ extern "C" {
     	\param Rweights an R-vector containing the weights for the integration.
     	\param Rsearch an R-integer to decide the search algorithm type (tree or naive search algorithm).
     	\param Rdepth an R-string containing the depth choice.
-    	\param RnThreads an R-integer containing the number of threads
 
     	\return R-list containg solutions.
     */
 
-    SEXP Integrated_Functional_Depth(SEXP Rdata, SEXP Rmesh, SEXP Rorder, SEXP Rmydim, SEXP Rndim, SEXP Rweights, SEXP Rsearch, SEXP Rdepth, SEXP RnThreads)
+    SEXP Integrated_Functional_Depth(SEXP Rdata, SEXP Rmesh, SEXP Rorder, SEXP Rmydim, SEXP Rndim, SEXP Rweights, SEXP Rsearch, SEXP Rdepth)
     {
         UInt order = INTEGER(Rorder)[0];
         UInt mydim = INTEGER(Rmydim)[0];
@@ -36,17 +35,17 @@ extern "C" {
         std::string depth_choice = CHAR(STRING_ELT(Rdepth, 0));
 
 	if(order== 1 && mydim==2 && ndim==2)
-		return(IFD_Skeleton<1, 2, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice, RnThreads));
+		return(IFD_Skeleton<1, 2, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	else if(order== 2 && mydim==2 && ndim==2)
-		return(IFD_Skeleton<2, 2, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice, RnThreads));
+		return(IFD_Skeleton<2, 2, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	else if(order== 1 && mydim==2 && ndim==3)
-		return(IFD_Skeleton<1, 2, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice, RnThreads));
+		return(IFD_Skeleton<1, 2, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	else if(order== 2 && mydim==2 && ndim==3)
-		return(IFD_Skeleton<2, 2, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice, RnThreads));
+		return(IFD_Skeleton<2, 2, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	else if(order == 1 && mydim==3 && ndim==3)
-		return(IFD_Skeleton<1, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice, RnThreads));
+		return(IFD_Skeleton<1, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	else if(order == 2 && mydim==3 && ndim==3)
-		return(IFD_Skeleton<2, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice, RnThreads));
+		return(IFD_Skeleton<2, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	
 	return(NILSXP);
     }

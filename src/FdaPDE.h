@@ -14,6 +14,7 @@
 //#include <iomanip>
 #include <limits>
 #include <vector>
+#include <array>
 #include <stack>
 #include <set>
 #include "Global_Utilities/Include/Make_Unique.h"
@@ -30,11 +31,6 @@
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
 #define  EIGEN_MPL2_ONLY
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 
 typedef double Real;
 typedef int UInt;
