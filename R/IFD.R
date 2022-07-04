@@ -81,7 +81,7 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
 
   ###################### Checking parameters, sizes and conversion #################################
 
-  if(weights == NULL){
+  if(is.null(weights)){
     n <- dim(data)[2]
     p <- dim(data)[1]
 
@@ -145,10 +145,10 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
       max<-max(data)
       min<-min(data)
       par(mfrow=c(1, 5))
-      plot.image.2D(FEM(median, FEMbasis), max, min)
-      plot.image.2D(FEM(firstQuartile, FEMbasis), max, min)
-      plot.image.2D(FEM(thirdQuartile, FEMbasis), max, min)
       plot.image.2D(FEM(lowerWhisker, FEMbasis), max, min)
+      plot.image.2D(FEM(firstQuartile, FEMbasis), max, min)
+      plot.image.2D(FEM(median, FEMbasis), max, min)
+      plot.image.2D(FEM(thirdQuartile, FEMbasis), max, min)
       plot.image.2D(FEM(upperWhisker, FEMbasis), max, min)
 
       par(mfrow=c(1, 5))
@@ -160,16 +160,17 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
     }else{
       max<-max(data)
       min<-min(data)
+
       plot(FEM(median, FEMbasis), max, min)
       plot(FEM(firstQuartile, FEMbasis), max, min)
       plot(FEM(thirdQuartile, FEMbasis), max, min)
       plot(FEM(lowerWhisker, FEMbasis), max, min)
       plot(FEM(upperWhisker, FEMbasis), max, min)
 
-      plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(thirdQuartile, FEMbasis), max, min)
       plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(firstQuartile, FEMbasis), max, min)
-      plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(upperWhisker, FEMbasis), max, min)
+      plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(thirdQuartile, FEMbasis), max, min)
       plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(lowerWhisker, FEMbasis), max, min)
+      plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(upperWhisker, FEMbasis), max, min)
       plot(FEM(func, FEMbasis), max, min)
     }
   }
