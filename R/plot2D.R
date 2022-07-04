@@ -4,9 +4,9 @@
 # Computational Statistics and Data Analysis
 
 
-# Plot a FEM object with jet colormap with range [m,M] 
+# Plot a FEM object with jet colormap with range [m,M]
 plot.FEM = function(FEM, M=NULL, m=NULL, ...){
-  
+
   if (is.null(m)) { m = min(FEM$coeff[!is.na(FEM$coeff)])}
   if (is.null(M)) { M = max(FEM$coeff[!is.na(FEM$coeff)])}
   triangles = c(t(FEM$FEMbasis$mesh$triangles))
@@ -21,39 +21,39 @@ plot.FEM = function(FEM, M=NULL, m=NULL, ...){
   }
   edges=edges[!duplicated(edges),]
   edges<-as.vector(t(edges))
-  
+
   coeff = FEM$coeff
-  
+
   FEMbasis = FEM$FEMbasis
-  
+
   mesh = FEMbasis$mesh
-  
+
   p=jet.col(n=128,alpha=0.8)
   # p <- colorRampPalette(c("#0E1E44","#3E6DD8","#68D061","#ECAF53", "#EB5F5F","#E11F1C"))(128)
   palette(p)
-  
+
   ncolor=length(p)
-  
+
   nplots <- ncol(coeff)
-  
+
   for (i in 1:nplots) {
-    
+
     if (i > 1)
       readline("Press any key for the next plot...")
-    
+
     diffrange = M - m
-    
+
     col = coeff[triangles,i]
-    col = (col - min(coeff[,i][!is.na(coeff[,i])]))/diffrange*(ncolor-1)+1
+    col = (col - m)/diffrange*(ncolor-1)+1
     col[is.na(col)] = "grey"
-    
+
     open3d()
     axes3d()
-    
+
     z <- coeff[triangles,i]
     rgl.triangles(nodes[triangles,1], nodes[triangles,2], z,
                   color = col,...)
-    
+
     aspect3d(2,2,1)
     rgl.viewpoint(0,-45)
   }

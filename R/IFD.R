@@ -145,10 +145,10 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
       max<-max(data)
       min<-min(data)
       par(mfrow=c(1, 5))
-      plot.image.2D(FEM(median, FEMbasis), max, min)
-      plot.image.2D(FEM(firstQuartile, FEMbasis), max, min)
-      plot.image.2D(FEM(thirdQuartile, FEMbasis), max, min)
       plot.image.2D(FEM(lowerWhisker, FEMbasis), max, min)
+      plot.image.2D(FEM(firstQuartile, FEMbasis), max, min)
+      plot.image.2D(FEM(median, FEMbasis), max, min)
+      plot.image.2D(FEM(thirdQuartile, FEMbasis), max, min)
       plot.image.2D(FEM(upperWhisker, FEMbasis), max, min)
 
       par(mfrow=c(1, 5))
