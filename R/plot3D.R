@@ -64,7 +64,7 @@ plot.FEM = function(FEM, M=NULL, m=NULL, ...){
       diffrange = M - m
 
       col = coeff[edges,isurf]
-      col = (col - min(coeff[,isurf][!is.na(coeff[,isurf])]))/diffrange*(ncolor-1)+1
+      col = (col - m)/diffrange*(ncolor-1)+1
       col[is.na(col)] = "grey"
 
       rgl.triangles(x = nodes[edges ,1], y = nodes[edges ,2],
@@ -90,7 +90,7 @@ plot.FEM = function(FEM, M=NULL, m=NULL, ...){
       diffrange = M - m
 
       col = coeff[triangles,isurf]
-      col = (col - min(coeff[,isurf][!is.na(coeff[,isurf])]))/diffrange*(ncolor-1)+1
+      col = (col - m)/diffrange*(ncolor-1)+1
       col[is.na(col)] = "grey"
 
       rgl.triangles(x = nodes[triangles ,1], y = nodes[triangles ,2],
