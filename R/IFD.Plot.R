@@ -39,7 +39,7 @@ plot.image.diff_lw_q1.2D = function(func,lw_q1, max, min){
 
   image(x,y,k,zlim,col=g_scale, axes=FALSE, border="black")
   image(x,y,z,zlim, axes = FALSE, border = "black", add = TRUE)
-  # contour(x,y,z, add = TRUE)
+  contour(x,y,k, add = TRUE)
 }
 
 # plot image with contour of the function VS upper whisker / Q3
@@ -63,7 +63,7 @@ plot.image.diff_uw_q3.2D = function(func,uw_q3, max, min){
 
   image(x,y,k,zlim,col=g_scale, axes=FALSE, border="black")
   image(x,y,z,zlim, axes = FALSE, border = "black", add = TRUE)
-  # contour(x,y,z, add = TRUE)
+  contour(x,y,k, add = TRUE)
 }
 
 #if(3D)
