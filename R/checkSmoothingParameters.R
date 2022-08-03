@@ -1,18 +1,22 @@
 checkSmoothingParameters<-function(locations = NULL, observations, FEMbasis, covariates = NULL, PDE_parameters = NULL, BC = NULL, incidence_matrix = NULL, areal.data.avg = TRUE, search = 'tree', bary.locations = NULL, optim, lambda = NULL, DOF.stochastic.realizations = 100, DOF.stochastic.seed = 0, DOF.matrix = NULL, GCV.inflation.factor = 1, lambda.optimization.tolerance = 0.05)
 {
   #################### Full Consistency Parameter Check #########################
-  
+
   # Mesh type and methods
   if(is.null(FEMbasis))
     stop("FEMbasis required;  is NULL.")
-  if(class(FEMbasis) != "FEMbasis")
+  if(!is(FEMbasis, "FEMbasis"))
     stop("'FEMbasis' is not class 'FEMbasis'")
 
-  if(class(FEMbasis$mesh)!='mesh.2D' & class(FEMbasis$mesh) != "mesh.2.5D" & class(FEMbasis$mesh) != "mesh.3D")
+  if(!is(FEMbasis$mesh, "mesh.1.5D") & !is(FEMbasis$mesh, "mesh.2D") & !is(FEMbasis$mesh, "mesh.2.5D") & !is(FEMbasis$mesh, "mesh.3D"))
     stop('Unknown mesh class')
 
-  if((class(FEMbasis$mesh) == "mesh.2.5D") & !is.null(PDE_parameters) )
+  if(is(FEMbasis$mesh, "mesh.2.5D") & !is.null(PDE_parameters) )
     stop('For mesh class mesh.2.5D, anysotropic regularization is not yet implemented.
+         Use Laplacian regularization instead')
+  
+  if(is(FEMbasis$mesh, "mesh.1.5D") & !is.null(PDE_parameters) )
+    stop('For mesh class mesh.1.5D, anysotropic regularization is not yet implemented.
          Use Laplacian regularization instead')
 
   # Locations & observations & areal
@@ -22,7 +26,7 @@ checkSmoothingParameters<-function(locations = NULL, observations, FEMbasis, cov
     if(any(is.na(observations)))
       stop("Missing values not admitted in 'observations' when 'locations' are specified.")
   }
-  
+
   if(is.null(observations))
     stop("observations required;  is NULL.")
 
@@ -36,7 +40,7 @@ checkSmoothingParameters<-function(locations = NULL, observations, FEMbasis, cov
     stop("'areal.data.avg' required; is NULL.")
   if(!is.logical(areal.data.avg))
     stop("'areal.data.avg' is not logical")
-  
+
   # PDE_parameters
   if(!is.null(PDE_parameters)){
     if(is.null(PDE_parameters$K))
@@ -76,7 +80,7 @@ checkSmoothingParameters<-function(locations = NULL, observations, FEMbasis, cov
     if (is.null(BC$BC_values))
       stop("'BC_indices' required in BC;  is NULL.")
   }
-  
+
   # Check the locations in 'bary.locations' and 'locations' are the same
   if(!is.null(bary.locations) & !is.null(locations)){
     flag = TRUE
@@ -169,7 +173,7 @@ checkSmoothingParametersSize<-function(locations = NULL, observations, FEMbasis,
   
   # Locations
   if(is.null(locations)){
-    if(class(FEMbasis$mesh) == "mesh.2D"){
+    if(is(FEMbasis$mesh, "mesh.2D")){
       if(nrow(observations) > nrow(FEMbasis$mesh$nodes))
         stop("Size of 'observations' is larger then the size of 'nodes' in the mesh")
     }
@@ -194,12 +198,14 @@ checkSmoothingParametersSize<-function(locations = NULL, observations, FEMbasis,
   if (!is.null(incidence_matrix)){
     if (nrow(incidence_matrix) != nrow(observations))
       stop("'incidence_matrix' and 'observations' have incompatible size;")
-    if (class(FEMbasis$mesh) == 'mesh.2D' && ncol(incidence_matrix) != nrow(FEMbasis$mesh$triangles))
+    if (is(FEMbasis$mesh, "mesh.2D") && ncol(incidence_matrix) != nrow(FEMbasis$mesh$triangles))
       stop("'incidence_matrix' must be a ntriangles-columns matrix;")
-    else if (class(FEMbasis$mesh) == 'mesh.2.5D' && ncol(incidence_matrix) != nrow(FEMbasis$mesh$triangles))
+    else if (is(FEMbasis$mesh, "mesh.2.5D") && ncol(incidence_matrix) != nrow(FEMbasis$mesh$triangles))
       stop("'incidence_matrix' must be a ntriangles-columns matrix;")
-    else if (class(FEMbasis$mesh) == 'mesh.3D' && ncol(incidence_matrix) != nrow(FEMbasis$mesh$tetrahedrons))
+    else if (is(FEMbasis$mesh, "mesh.3D") && ncol(incidence_matrix) != nrow(FEMbasis$mesh$tetrahedrons))
       stop("'incidence_matrix' must be a ntetrahedrons-columns matrix;")
+    else if (is(FEMbasis$mesh, "mesh.1.5D") && ncol(incidence_matrix) != nrow(FEMbasis$mesh$edges))
+      stop("'incidence_matrix' must be a nedges-columns matrix;")
   }
   
   # BC
@@ -210,7 +216,7 @@ checkSmoothingParametersSize<-function(locations = NULL, observations, FEMbasis,
       stop("'BC_values' must be a column vector")
     if(nrow(BC$BC_indices) != nrow(BC$BC_values))
       stop("'BC_indices' and 'BC_values' have incompatible size;")
-    if(class(FEMbasis$mesh) == "mesh.2D"){
+    if(is(FEMbasis$mesh, "mesh.2D")){
       if(sum(BC$BC_indices>nrow(nrow(FEMbasis$mesh$nodes))) > 0)
         stop("At least one index in 'BC_indices' larger then the number of 'nodes' in the mesh;")
     }

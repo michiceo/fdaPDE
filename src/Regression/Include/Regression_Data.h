@@ -16,9 +16,9 @@ class  RegressionData
 	protected:
 		const RNumericMatrix locations_;		//!< Design matrix pointer and dimensions.
 		VectorXr 	   observations_; 		//!< Observations data
-		bool 		   locations_by_nodes_; 	//!< If location is on the mesh nodes or not.
-		UInt 		   nRegions_; 			//!< For areal data.
-		bool 		   arealDataAvg_; 		//!< Is areal data averaged ?
+		bool 		   locations_by_nodes_{}; 	//!< If location is on the mesh nodes or not.
+		UInt 		   nRegions_ = 0; 		//!< For areal data.
+		bool 		   arealDataAvg_{}; 		//!< Is areal data averaged ?
 		VectorXr	   WeightsMatrix_; 		//!< Weighted regression.
 		bool           isGAM = false;
 
@@ -32,10 +32,10 @@ class  RegressionData
 		// Barycenter information
 		VectorXi element_ids_; 				//!< Elements id information
 		MatrixXr barycenters_; 				//!< Barycenter information
-		bool locations_by_barycenter_;
+		bool locations_by_barycenter_{};
 
 		// Other parameters
-		UInt order_;
+		UInt order_ = 0;
 
 		// Boundary + Initial
 		std::vector<Real> bc_values_;
@@ -44,21 +44,21 @@ class  RegressionData
 
 		// Design matrix
 		MatrixXr covariates_;
-		UInt n_;
-		UInt p_;
+		UInt n_ = 0;
+		UInt p_ = 0;
 
 		// Areal data
 		MatrixXi incidenceMatrix_;
 
-		bool flag_mass_;				//!< Mass penalization, only for separable version (flag_parabolic_==FALSE)
-		bool flag_parabolic_;
-		bool flag_iterative_;     //!<True if iterative-method for space time smoothing is selected
-		bool flag_SpaceTime_; // TRUE if space time smoothing
-		UInt search_; // search algorith type
+		bool flag_mass_{};				//!< Mass penalization, only for separable version (flag_parabolic_==FALSE)
+		bool flag_parabolic_{};
+		bool flag_iterative_{};     			//!<True if iterative-method for space time smoothing is selected
+		bool flag_SpaceTime_{}; 			// TRUE if space time smoothing
+		UInt search_ = 0; 				// search algorith type
 
-        // Iterative method
-        UInt max_num_iterations_; //!< Max number of iterations allowed
-        Real threshold_; //!< Limit in difference among J_k and J_k+1 for which we stop iterative method.
+        	// Iterative method
+        	UInt max_num_iterations_ = 0; 			//!< Max number of iterations allowed
+        	Real threshold_ = 0.; 				//!< Limit in difference among J_k and J_k+1 for which we stop iterative method.
 
 		// -- SETTERS --
 		void setObservations(SEXP Robservations);
@@ -115,7 +115,8 @@ class  RegressionData
 		//! A method returning the number of observations
 		UInt getNumberofObservations(void) const {return observations_.size();}
 		//! A method returning the number of space observations
-		UInt getNumberofSpaceObservations(void) const {return observations_.size()/time_locations_.size();}
+		UInt getNumberofSpaceObservations(void) const
+			{return observations_.size()/(time_locations_.size()==0 ? 1:time_locations_.size() );}
 		//! A method returning the number of time observations
 
 		UInt getNumberofTimeObservations(void) const {return time_locations_.size();}
@@ -318,6 +319,24 @@ class  RegressionDataGAM : public RegressionHandler
 		explicit RegressionDataGAM(SEXP Rlocations, SEXP RbaryLocations, SEXP Robservations, SEXP Rorder,
 			SEXP RK, SEXP Rbeta, SEXP Rc, SEXP Ru, SEXP Rcovariates, SEXP RBCIndices, SEXP RBCValues,
 			SEXP RincidenceMatrix, SEXP RarealDataAvg, SEXP Rsearch, SEXP Rmax_num_iteration, SEXP Rthreshold);
+
+		//Laplace time
+		explicit RegressionDataGAM(SEXP Rlocations, SEXP RbaryLocations, SEXP Rtime_locations, SEXP Robservations, SEXP Rorder,
+			SEXP Rcovariates, SEXP RBCIndices, SEXP RBCValues, SEXP RincidenceMatrix, SEXP RarealDataAvg,
+			SEXP Rflag_mass, SEXP Rflag_parabolic, SEXP Rflag_iterative, SEXP Rmax_num_iteration, SEXP Rthreshold, SEXP Ric, SEXP Rsearch, 
+			SEXP Rmax_num_iteration_pirls, SEXP Rthreshold_pirls);
+		
+		// PDE time
+		explicit RegressionDataGAM(SEXP Rlocations, SEXP RbaryLocations, SEXP Rtime_locations, SEXP Robservations, SEXP Rorder,
+			SEXP RK, SEXP Rbeta, SEXP Rc, SEXP Rcovariates, SEXP RBCIndices, SEXP RBCValues, SEXP RincidenceMatrix, SEXP RarealDataAvg,
+			SEXP Rflag_mass, SEXP Rflag_parabolic, SEXP Rflag_iterative, SEXP Rmax_num_iteration, SEXP Rthreshold, SEXP Ric, SEXP Rsearch, 
+			SEXP Rmax_num_iteration_pirls, SEXP Rthreshold_pirls);
+		
+		// PDE SpaceVarying time
+		explicit RegressionDataGAM(SEXP Rlocations, SEXP RbaryLocations, SEXP Rtime_locations, SEXP Robservations, SEXP Rorder,
+			SEXP RK, SEXP Rbeta, SEXP Rc, SEXP Ru, SEXP Rcovariates, SEXP RBCIndices, SEXP RBCValues, SEXP RincidenceMatrix, SEXP RarealDataAvg,
+			SEXP Rflag_mass, SEXP Rflag_parabolic, SEXP Rflag_iterative, SEXP Rmax_num_iteration, SEXP Rthreshold, SEXP Ric, SEXP Rsearch, 
+			SEXP Rmax_num_iteration_pirls, SEXP Rthreshold_pirls);
 
 		//! A method returning the maximum iteration for the iterative method
 		UInt get_maxiter() const {return max_num_iterations_;}

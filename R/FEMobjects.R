@@ -47,36 +47,40 @@ create.FEM.basis = function(mesh=NULL, saveTree = FALSE)
   if (is.null(mesh))
     stop("mesh required;  is NULL.")
 
-  if(class(mesh)!='mesh.2D' & class(mesh)!='mesh.2.5D' & class(mesh)!='mesh.3D')
+  if(!is(mesh, "mesh.1.5D") & !is(mesh, "mesh.2D") & !is(mesh, "mesh.2.5D") & !is(mesh, "mesh.3D"))
     stop("Unknown mesh class")
 
   if (saveTree == TRUE) {
       ## Call C++ function
       # Note: myDim and nDim are available outside the scope (different from C++)
-      if (class(mesh)=='mesh.2D'){
+      if (is(mesh, "mesh.2D")){
         myDim = 2
         nDim = 2
       }
-      if (class(mesh)=='mesh.2.5D'){
+      if (is(mesh, "mesh.2.5D")){
         myDim = 2
         nDim = 3
       }
-      if (class(mesh)=='mesh.3D'){
+      if (is(mesh, "mesh.3D")){
         myDim = 3
         nDim = 3
+      }
+      if(is(mesh, "mesh.1.5D")){
+        myDim = 1
+        nDim = 2
       }
 
       orig_mesh = mesh
       
-      
-      if(nDim==2){
+      if(myDim == 1 && nDim == 2){
+        mesh$edges = mesh$edges - 1
+        storage.mode(mesh$edges) <- "integer"
+      }else if(nDim==2 || (myDim==2 && nDim==3)){
         mesh$triangles = mesh$triangles - 1
         mesh$edges = mesh$edges - 1
         storage.mode(mesh$triangles) <- "integer"
         storage.mode(mesh$edges) <- "integer"
-      }
-      
-      if(nDim==3){
+      }else if(nDim==3){
         mesh$tetrahedrons = mesh$tetrahedrons - 1
         mesh$faces = mesh$faces - 1
         storage.mode(mesh$tetrahedrons) <- "integer"
@@ -84,9 +88,10 @@ create.FEM.basis = function(mesh=NULL, saveTree = FALSE)
       }
       
       storage.mode(mesh$nodes) <- "double"
-      
-      mesh$neighbors[mesh$neighbors != -1] = mesh$neighbors[mesh$neighbors != -1] - 1
-      storage.mode(mesh$neighbors) <- "integer"
+      if( myDim != 1){
+      	mesh$neighbors[mesh$neighbors != -1] = mesh$neighbors[mesh$neighbors != -1] - 1
+      	storage.mode(mesh$neighbors) <- "integer"
+      }
       storage.mode(mesh$order) <- "integer"
       storage.mode(myDim) <- "integer"
       storage.mode(nDim) <- "integer"
@@ -130,7 +135,8 @@ create.FEM.basis = function(mesh=NULL, saveTree = FALSE)
 #' data(horseshoe2D)
 #'
 #' ## Create the 2D mesh
-#' mesh = create.mesh.2D(nodes = rbind(horseshoe2D$boundary_nodes, horseshoe2D$locations), segments = horseshoe2D$boundary_segments)
+#' mesh = create.mesh.2D(nodes = rbind(horseshoe2D$boundary_nodes, horseshoe2D$locations), 
+#'                       segments = horseshoe2D$boundary_segments)
 #' ## Create the FEM basis
 #' FEMbasis = create.FEM.basis(mesh)
 #' ## Compute the coeff vector evaluating the desired function at the mesh nodes
@@ -148,7 +154,7 @@ FEM<-function(coeff,FEMbasis)
     stop("coeff required;  is NULL.")
   if (is.null(FEMbasis))
     stop("FEMbasis required;  is NULL.")
-  if(class(FEMbasis) != "FEMbasis")
+  if(!is(FEMbasis, "FEMbasis"))
     stop("FEMbasis not of class 'FEMbasis'")
   coeff = as.matrix(coeff)
   if(nrow(coeff) != FEMbasis$nbasis)
@@ -176,7 +182,8 @@ FEM<-function(coeff,FEMbasis)
 #' data(horseshoe2D)
 #'
 #' ## Create the 2D mesh
-#' mesh = create.mesh.2D(nodes = rbind(horseshoe2D$boundary_nodes, horseshoe2D$locations), segments = horseshoe2D$boundary_segments)
+#' mesh = create.mesh.2D(nodes = rbind(horseshoe2D$boundary_nodes, horseshoe2D$locations), 
+#'                       segments = horseshoe2D$boundary_segments)
 #' ## Create the FEM basis
 #' FEMbasis = create.FEM.basis(mesh)
 #' ## Compute the coeff vector evaluating the desired function at the mesh nodes
@@ -205,7 +212,7 @@ FEM.time<-function(coeff,time_mesh,FEMbasis,FLAG_PARABOLIC=FALSE)
     stop("FLAG_PARABOLIC required;  is NULL.")
   if (is.null(FEMbasis))
     stop("FEMbasis required;  is NULL.")
-  if(class(FEMbasis) != "FEMbasis")
+  if(!is(FEMbasis, "FEMbasis"))
     stop("FEMbasis not of class 'FEMbasis'")
   if(dim(coeff)[1] != (FEMbasis$nbasis*M))
     stop("Number of row of 'coeff' different from number of basis")

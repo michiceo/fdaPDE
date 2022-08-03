@@ -30,12 +30,12 @@ void MixedFERegressionBase<InputHandler>::addDirichletBC() //adds boundary condi
 			id3=id1+nnodes;
 			id2=id1+N_;
 
-         if (!regressionData_.getFlagIterative())
+         if (!this->isIterative)
          {
              matrixNoCov_.coeffRef(id1,id1)=pen;
              matrixNoCov_.coeffRef(id3, id3) = pen;
          }
-         else if (regressionData_.getFlagIterative() && i<nbc_indices/M_)
+         else if (this->isIterative && i<nbc_indices/M_)
          {
              matrixNoCov_.coeffRef(id1, id1) = pen;
              matrixNoCov_.coeffRef(id2, id2) = pen;
@@ -108,7 +108,7 @@ void MixedFERegressionBase<InputHandler>::setPsi(const MeshHandler<ORDER, mydim,
 	psi_.resize(nlocations, nnodes);	// Resize the matrix
 
 	// Optimized strategies according to the presence of locations
-	if(regressionData_.isLocationsByNodes() & !regressionData_.isLocationsByBarycenter()) // .Pointwise data -- no barycenters
+	if(regressionData_.isLocationsByNodes() && !regressionData_.isLocationsByBarycenter()) // .Pointwise data -- no barycenters
 	{
 		std::vector<coeff> tripletAll;
 		if(!regressionData_.isSpaceTime()) // Just spatial case
@@ -348,7 +348,7 @@ void MixedFERegressionBase<InputHandler>::setDMat(void)
 		DMat_ = psi_t_*DMat_;
     else
     {
-        if (!regressionData_.getFlagIterative())
+        if (!this->isIterative)
             DMat_ = psi_t_*A_.asDiagonal()*DMat_; // areal data: need to add the diag(|D_1|,...,|D_N|)
         else
         {
@@ -566,7 +566,7 @@ template<typename InputHandler>
 void MixedFERegressionBase<InputHandler>::buildMatrixNoCov(const SpMat & NWblock, const SpMat & SWblock,  const SpMat & SEblock)
 {
     UInt nnodes = N_; // only space and Iterative method
-    if (regressionData_.isSpaceTime() && !regressionData_.getFlagIterative())
+    if (regressionData_.isSpaceTime() && !this->isIterative)
         nnodes *= M_;
 
 	// Vector to be filled with the triplets used to build _coeffmatrix (reserved with the right dimension)
@@ -614,9 +614,9 @@ void MixedFERegressionBase<InputHandler>::system_factorize()
 	// First phase: Factorization of matrixNoCov
 	matrixNoCovdec_.compute(matrixNoCov_);
 
+    bool needUpdate = isGAMData ? true : !isUVComputed;
 
-
-	if(regressionData_.getCovariates()->rows() != 0 && !isUVComputed)
+	if(regressionData_.getCovariates()->rows() != 0 && needUpdate)
 	{ // Needed only if there are covariates, else we can stop before
 		// Second phase: factorization of matrix  G =  C + [V * matrixNoCov^-1 * U]= C + D
 		// Definition of matrix U = [ psi^T * A * W | 0 ]^T and V= [ W^T*psi| 0]
@@ -651,7 +651,7 @@ void MixedFERegressionBase<InputHandler>::system_factorize()
 				U_.topRows(nnodes) = psi_.transpose()*A_.asDiagonal()*P->asDiagonal()*W;
     	}
 
-		if (!regressionData_.getFlagIterative())
+		if (!this->isIterative)
 		{
             MatrixXr D = V_ * matrixNoCovdec_.solve(U_);
 
@@ -704,16 +704,22 @@ template<typename InputHandler>
 template<typename Derived>
 MatrixXr MixedFERegressionBase<InputHandler>::system_solve(const Eigen::MatrixBase<Derived> & b)
 {
-	// Resolution of the system matrixNoCov * x1 = b
-	MatrixXr x1 = matrixNoCovdec_.solve(b);
-	if(regressionData_.getCovariates()->rows() != 0 && !regressionData_.getFlagIterative())
-	{
-		// Resolution of G * x2 = V * x1
-		MatrixXr x2 = Gdec_.solve(V_*x1);
-		// Resolution of the system matrixNoCov * x3 = U * x2
-		x1 -= matrixNoCovdec_.solve(U_*x2);
-	}
+	if(isMatrixNoCov_factorized()) {
+	 // Resolution of the system matrixNoCov * x1 = b
+	 MatrixXr x1 = matrixNoCovdec_.solve(b);
+	 if(regressionData_.getCovariates()->rows() != 0 && !this->isIterative)
+	 {
+		 // Resolution of G * x2 = V * x1
+		 MatrixXr x2 = Gdec_.solve(V_*x1);
+		 // Resolution of the system matrixNoCov * x3 = U * x2
+		 x1 -= matrixNoCovdec_.solve(U_*x2);
+	 }
 	return x1;
+	}
+	else{
+         // There are numerical issues
+         return VectorXr::Zero(2*N_*M_);
+        }
 }
 
 
@@ -726,16 +732,16 @@ void MixedFERegressionBase<InputHandler>::computeDegreesOfFreedom(UInt output_in
 	std::string GCVmethod = optimizationData_.get_DOF_evaluation();
 	switch (GCVmethod == "exact") {
 		case 1:
-		  if(regressionData_.getFlagIterative() & !isGAMData)
-              computeDOFExact_iterative(output_indexS, output_indexT, lambdaS, lambdaT);
+			if(this->isIterative & !isGAMData)
+				Rprintf("Function computeDOFExact_iterative moved to Lambda_optimizer\n");
 			else
-              computeDegreesOfFreedomExact(output_indexS, output_indexT, lambdaS, lambdaT);
+				computeDegreesOfFreedomExact(output_indexS, output_indexT, lambdaS, lambdaT);
 			break;
 		case 0:
-			if(regressionData_.getFlagIterative() & !isGAMData)
-                computeDOFStochastic_iterative(output_indexS, output_indexT, lambdaS, lambdaT);
+			if(this->isIterative & !isGAMData)
+				Rprintf("Function computeDOFStochastic_iterative moved to Lambda_optimizer\n");
 			else
-                computeDegreesOfFreedomStochastic(output_indexS, output_indexT, lambdaS, lambdaT);
+				computeDegreesOfFreedomStochastic(output_indexS, output_indexT, lambdaS, lambdaT);
 			break;
 	}
 }
@@ -774,7 +780,6 @@ void MixedFERegressionBase<InputHandler>::computeGeneralizedCrossValidation(UInt
 template<typename InputHandler>
 void MixedFERegressionBase<InputHandler>::computeDegreesOfFreedomExact(UInt output_indexS, UInt output_indexT, Real lambdaS, Real lambdaT)
 {
-    std::string file_name;
     UInt nnodes = N_*M_;
     UInt nlocations = regressionData_.getNumberofObservations();
     Real degrees=0;
@@ -881,129 +886,121 @@ void MixedFERegressionBase<InputHandler>::computeDegreesOfFreedomExact(UInt outp
     _dof(output_indexS,output_indexT) = degrees;
 }
 
+/*
+// Moved to Lambda_Optimizer.h
 template<typename InputHandler>
 void MixedFERegressionBase<InputHandler>::computeDOFExact_iterative(UInt output_indexS, UInt output_indexT, Real lambdaS, Real lambdaT) {
-    std::string file_name;
-    UInt stopthecount = 0;
-    Real degrees = 0;
+    Real degrees = (regressionData_.getCovariates()->rows() != 0) ? regressionData_.getCovariates()->cols() : 0;
     UInt nlocations = regressionData_.getNumberofSpaceObservations();
+
+
+    if (isRcomputed_ == false)
+		{
+			isRcomputed_ = true;
+			SpMat R0;
+			//take R0 from the final matrix since it has already applied the dirichlet boundary conditions
+			R0 = matrixNoCov_.bottomRightCorner(N_, N_) / lambdaS;
+			Eigen::SparseLU<SpMat> R0dec_;
+			R0dec_.compute(R0);
+			MatrixXr X2 = R0dec_.solve(R1_);
+			R_ = R1_.transpose() * X2;
+		}
+
+
 
     for(UInt k=0; k<M_; k++)
     {
-      MatrixXr X1;
-      MatrixXr Q_k = MatrixXr::Zero(nlocations,nlocations);
-      if (regressionData_.getCovariates()->rows() != 0)
-          Q_k = Q_.block(k*nlocations,k*nlocations,nlocations,nlocations);
-      else {
-          for (UInt i=0; i<nlocations; i++){
-              Q_k(i,i)=1;
-          }
+		MatrixXr X1;
+		MatrixXr Q_k = MatrixXr::Zero(nlocations,nlocations);
+		if (regressionData_.getCovariates()->rows() != 0)
+			Q_k = Q_.block(k*nlocations,k*nlocations,nlocations,nlocations);
+		else 
+			//for (UInt i=0; i<nlocations; i++)
+			//	Q_k(i,i)=1;
+			Q_k = MatrixXr::Identity(nlocations, nlocations);
+		
+		if (regressionData_.getNumberOfRegions() == 0)  //pointwise data
+			X1 = Q_k;
+		else //areal data
+		{
+			// VectorXr miniA_  = A_.segment(k * regressionData_.getNumberOfRegions(), regressionData_.getNumberOfRegions());
 
-      }
-      if (regressionData_.getNumberOfRegions() == 0) { //pointwise data
-          X1 = Q_k;
-      } else { //areal data
-          VectorXr miniA_  = A_.segment(0, regressionData_.getNumberOfRegions());
-          X1 =  miniA_.asDiagonal() * Q_k;
-          }
+			VectorXr miniA_  = A_.segment(0, regressionData_.getNumberOfRegions());
+			X1 =  miniA_.asDiagonal() * Q_k;
+		}
 
-      psi_mini = psi_.block(k * nlocations, k* N_, nlocations, N_);
-      X1=psi_mini.transpose()*X1*psi_mini;
+		psi_mini = psi_.block(k * nlocations, k* N_, nlocations, N_);
+		X1=psi_mini.transpose()*X1*psi_mini;
 
-      if (isRcomputed_ == false)
-      {
-          isRcomputed_ = true;
-          SpMat R0;
-            //take R0 from the final matrix since it has already applied the dirichlet boundary conditions
-            R0 = matrixNoCov_.bottomRightCorner(N_, N_) / lambdaS;
-            Eigen::SparseLU<SpMat> R0dec_;
-            R0dec_.compute(R0);
-            MatrixXr X2 = R0dec_.solve(R1_);
-            R_ = R1_.transpose() * X2;
-      }
-    
-          MatrixXr P;
-          MatrixXr X3 = X1;
-          //define the penalization matrix:
-          //  P = lambdaS * (psi_mini*R_*psi_mini.transpose());
-			P = lambdaS * R_;
+		MatrixXr X3 = X1;
+		//define the penalization matrix:
+		//  P = lambdaS * (psi_mini*R_*psi_mini.transpose());
+		MatrixXr P = lambdaS * R_;
 
-        //impose dirichlet boundary conditions if needed
+		//impose dirichlet boundary conditions if needed
 
-         if (regressionData_.getDirichletIndices()->size() != 0)
-         {
-            const std::vector<UInt> * bc_indices = regressionData_.getDirichletIndices();
+		if (regressionData_.getDirichletIndices()->size() != 0)
+		{
+			const std::vector<UInt> * bc_indices = regressionData_.getDirichletIndices();
 
-             UInt nbc_indices = bc_indices->size();
-            Real pen=10e20;
-            for (UInt i = 0; i < (nbc_indices/M_); i++) {
-                UInt id1=(*bc_indices)[i];
+			UInt nbc_indices = bc_indices->size();
+			Real pen=10e20;
+			for (UInt i = 0; i < (nbc_indices/M_); i++) 
+			{
+				UInt id1=(*bc_indices)[i];
+				X3.coeffRef(id1, id1) = pen;
+			}
+		}
 
-                X3.coeffRef(id1, id1) = pen;
-            }
-         }
+		X3 -= P;
 
-        X3 -= P;
-
-        Eigen::PartialPivLU <MatrixXr> Dsolver(X3);
+		Eigen::PartialPivLU <MatrixXr> Dsolver(X3);
 
 
-         const auto ki = regressionData_.getObservationsIndices();
+		const auto ki = regressionData_.getObservationsIndices();
 
         // Setup rhs B
 
 		MatrixXr psiQ_k;
-		if (regressionData_.getNumberOfRegions() == 0) { //pointwise data
-			 psiQ_k= MatrixXr::Zero(nlocations,nlocations);
-			for(UInt i=0; i< nlocations;i++){
-				psiQ_k(i,i)=1;
-			}
-            if (regressionData_.getCovariates()->rows() == 0)
-                psiQ_k=psi_mini.transpose()*psi_mini;
-			else
-	        {
-	            if(stopthecount==0){
-	                 degrees += regressionData_.getCovariates()->cols();
-	                stopthecount=1;
-	          }
-	          psiQ_k=Q_.block(k*nlocations,k*nlocations,nlocations,nlocations);
-							psiQ_k=psi_mini.transpose()*psiQ_k*psi_mini;
-	        }
+		UInt n_loc_reg = (regressionData_.getNumberOfRegions() == 0) ? nlocations : regressionData_.getNumberOfRegions();
+		//if (regressionData_.getNumberOfRegions() == 0)	//pointwise data
+		//{
+			//psiQ_k= MatrixXr::Identity(nlocations,nlocations);
+			//for(UInt i=0; i< nlocations;i++)
+			//	psiQ_k(i,i)=1;
+		if (regressionData_.getCovariates()->rows() == 0)
+			psiQ_k=psi_mini.transpose()*psi_mini;
+		else
+		{
+			psiQ_k=Q_.block(k*n_loc_reg,k*n_loc_reg,n_loc_reg,n_loc_reg);
+			psiQ_k=psi_mini.transpose()*psiQ_k*psi_mini;
 		}
-
-		if (regressionData_.getNumberOfRegions() != 0)
-		{ //areal data
+		/*}
+		else 	//areal data
+		{
 			UInt nreg=regressionData_.getNumberOfRegions();
-
 			if (regressionData_.getCovariates()->rows() != 0)
 			{
-			    if(stopthecount==0)
-			    {
-			        degrees += regressionData_.getCovariates()->cols();
-			        stopthecount=1;
-			    }
 			    psiQ_k=Q_.block(k*nreg,k*nreg,nreg,nreg);
-					psiQ_k=psi_mini.transpose()*psiQ_k*psi_mini;
+				psiQ_k=psi_mini.transpose()*psiQ_k*psi_mini;
 
 			}
-			if (regressionData_.getCovariates()->rows() == 0)
-			{
+			else
 			    psiQ_k=psi_mini.transpose()*psi_mini;
-			}
-
 		}
-
+		*/
+/*
 		// Solve the system TX = B
         MatrixXr X;
         X = Dsolver.solve(psiQ_k);
 
         // Compute trace(X(k,:))
-        for (UInt i = 0; i < N_; ++i) {
+        for (UInt i = 0; i < N_; ++i)
             degrees += X(i, i);
-        }
     }
       _dof(output_indexS, output_indexT) = degrees;
 }
+*/
 
 
 template<typename InputHandler>
@@ -1061,7 +1058,8 @@ void MixedFERegressionBase<InputHandler>::computeDegreesOfFreedomStochastic(UInt
 }
 
 
-
+/*
+// Moved to Lambda_Optimizer.h
 template<typename InputHandler>
 void MixedFERegressionBase<InputHandler>::computeDOFStochastic_iterative(UInt output_indexS, UInt output_indexT, Real lambdaS, Real lambdaT)
 {
@@ -1134,6 +1132,7 @@ void MixedFERegressionBase<InputHandler>::computeDOFStochastic_iterative(UInt ou
       }
 	_dof(output_indexS,output_indexT) = mean + q;
 }
+*/
 
 
 template<typename InputHandler>
@@ -1177,14 +1176,16 @@ void MixedFERegressionBase<InputHandler>::preapply(EOExpr<A> oper, const Forcing
 		isR0Computed = true;
 	}
 
-	if(this->isSpaceVarying)
+	if(this->isSpaceVarying && !isFTComputed)
 	{
 		Assembler::forcingTerm(mesh_, fe, u, rhs_ft_correction_);
+		isFTComputed = true;
 	}
 
-	if(regressionData_.isSpaceTime() && !regressionData_.getFlagIterative())
+	if(regressionData_.isSpaceTime() && !isSVComputed && !this->isIterative)
 	{
 		this->buildSpaceTimeMatrices();
+		isSVComputed = true;
 	}
 
 	// Set final transpose of Psi matrix
@@ -1193,8 +1194,8 @@ void MixedFERegressionBase<InputHandler>::preapply(EOExpr<A> oper, const Forcing
 	setDMat();
 
 	// Set the matrix needed for the iterative method
-	if(regressionData_.isSpaceTime() && regressionData_.getFlagIterative())
-        buildSpaceTimeMatrices_iterative();
+	if(regressionData_.isSpaceTime() && this->isIterative)
+        	buildSpaceTimeMatrices_iterative();
 
 	// Define right hand data [rhs]
 	VectorXr rightHandData;
@@ -1226,11 +1227,11 @@ void MixedFERegressionBase<InputHandler>::buildSystemMatrix(Real lambdaS, Real l
     this->R1_lambda = (-lambdaS) * R1_;
     // Update the SouthWest block of the matrix (also the NorthEast block transposed) if parabolic
     // distinguishing between iterative and monolithic method
-    if (regressionData_.isSpaceTime() && regressionData_.getFlagParabolic() && !regressionData_.getFlagIterative())
+    if (regressionData_.isSpaceTime() && regressionData_.getFlagParabolic() && !this->isIterative)
     {
         this->R1_lambda -= lambdaS * (lambdaT * LR0k_);
     }
-    if (regressionData_.isSpaceTime() && regressionData_.getFlagParabolic() && regressionData_.getFlagIterative())
+    if (regressionData_.isSpaceTime() && regressionData_.getFlagParabolic() && this->isIterative)
     {
         //Recall: with the iterative method the  matrix of the systems have dimension 2N_*2N_ i
         Real delta = mesh_time_[1] - mesh_time_[0];
@@ -1253,25 +1254,50 @@ void MixedFERegressionBase<InputHandler>::buildSystemMatrix(Real lambdaS, Real l
 template<typename InputHandler>
 MatrixXr MixedFERegressionBase<InputHandler>::apply_to_b(const MatrixXr & b)
 {
-	const Real last_lambda = optimizationData_.get_last_lS_used();
-	const Real lambda_ = optimizationData_.get_current_lambdaS();
-        if(lambda_ != last_lambda)
-        {
-                this->buildSystemMatrix(lambda_);
+	const Real last_lambdaS = optimizationData_.get_last_lS_used();
+	const Real last_lambdaT = optimizationData_.get_last_lT_used();
+	const Real lambdaS = optimizationData_.get_current_lambdaS();
+	const Real lambdaT = optimizationData_.get_current_lambdaT();
+    if(lambdaS!=last_lambdaS || lambdaT!=last_lambdaT)
+	{
+		if(!regressionData_.isSpaceTime())
+			buildSystemMatrix(lambdaS);
+        else
+			buildSystemMatrix(lambdaS, lambdaT);
 
 		if(regressionData_.getDirichletIndices()->size() > 0)  // if areal data NO BOUNDARY CONDITIONS
-		{
 			this->addDirichletBC_matrix();
-		}
 
-                this->system_factorize();
-        }
+        this->system_factorize();
+    }
 
-	optimizationData_.set_last_lS_used(lambda_);
+	optimizationData_.set_last_lS_used(lambdaS);
+	optimizationData_.set_last_lT_used(lambdaT);
 
-        return this->template system_solve(b);
+    return this->template system_solve(b);
 }
 
+template<typename InputHandler>
+MatrixXr MixedFERegressionBase<InputHandler>::apply_to_b_iter(const MatrixXr & b, UInt time_index)
+{
+	const Real lambdaS = optimizationData_.get_current_lambdaS();
+	const Real lambdaT = optimizationData_.get_current_lambdaT();
+
+	if(!regressionData_.isSpaceTime())
+		buildSystemMatrix(lambdaS);
+    else
+		buildSystemMatrix(lambdaS, lambdaT);
+
+	if(regressionData_.getDirichletIndices()->size() > 0)  // if areal data NO BOUNDARY CONDITIONS
+		this->addDirichletBC_matrix();
+
+    this->system_factorize();
+        
+	optimizationData_.set_last_lS_used(lambdaS);
+	optimizationData_.set_last_lT_used(lambdaT);
+
+    return this->template solve_covariates_iter(b, time_index);
+}
 
 template<typename InputHandler>
 MatrixXv  MixedFERegressionBase<InputHandler>::apply(void)
@@ -1280,11 +1306,17 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply(void)
 	const VectorXr * obsp = regressionData_.getObservations(); // Get observations
 
 	UInt sizeLambdaS;
-	if (!regressionData_.isSpaceTime() && !isGAMData)
+	UInt sizeLambdaT;
+	if (!isGAMData)
+	{
 	   sizeLambdaS=1;
+	   sizeLambdaT=1;
+   	}
 	else
+	{
 	   sizeLambdaS = optimizationData_.get_size_S();
-	UInt sizeLambdaT = optimizationData_.get_size_T();
+	   sizeLambdaT = optimizationData_.get_size_T();
+   	}
 
 	this->_solution.resize(sizeLambdaS,sizeLambdaT);
 	this->_dof.resize(sizeLambdaS,sizeLambdaT);
@@ -1301,17 +1333,22 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply(void)
 		for(UInt t=0; t<sizeLambdaT; ++t)
 		{
                         Real lambdaS;
-			if(!regressionData_.isSpaceTime() && !isGAMData) //at the moment only space is implemented
+                        Real lambdaT;
+			if(!isGAMData) //at the moment only space and space-time are implemented
 				{
 					lambdaS = optimizationData_.get_current_lambdaS();
+					lambdaT = optimizationData_.get_current_lambdaT();
 				}
 			else
-			 	lambdaS = (optimizationData_.get_lambda_S())[s];
-
-			Real lambdaT = (optimizationData_.get_lambda_T())[t];
+				{
+				 	lambdaS = (optimizationData_.get_lambda_S())[s];
+				 	lambdaT = (optimizationData_.get_lambda_T())[t];
+		 		}
+		 		
 			_rightHandSide = rhs;
 
-			if(isGAMData || regressionData_.isSpaceTime() || optimizationData_.get_current_lambdaS()!=optimizationData_.get_last_lS_used())
+			if(isGAMData || optimizationData_.get_current_lambdaS()!=optimizationData_.get_last_lS_used() ||
+				optimizationData_.get_current_lambdaT()!=optimizationData_.get_last_lT_used())
 			{
 				if(!regressionData_.isSpaceTime())
 				{
@@ -1344,7 +1381,8 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply(void)
 
 
 			//f Factorization of the system for woodbury decomposition
-			if(isGAMData || regressionData_.isSpaceTime() || optimizationData_.get_current_lambdaS()!=optimizationData_.get_last_lS_used())
+			if(isGAMData || optimizationData_.get_current_lambdaS()!=optimizationData_.get_last_lS_used() ||
+				optimizationData_.get_current_lambdaT()!=optimizationData_.get_last_lT_used())
 			{
 				system_factorize();
 			}
@@ -1352,20 +1390,13 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply(void)
 			// system solution
 			_solution(s,t) = this->template system_solve(this->_rightHandSide);
 
-
-			if(optimizationData_.get_loss_function()=="GCV" && (!isGAMData&&regressionData_.isSpaceTime()))
-			{
-				if (optimizationData_.get_DOF_evaluation()!="not_required")
-				{
-					computeDegreesOfFreedom(s,t,lambdaS,lambdaT);
-				}
-				computeGeneralizedCrossValidation(s,t,lambdaS,lambdaT);
-			}
-			else
+			
+			if(optimizationData_.get_loss_function()!="GCV" || isGAMData)
 			{
 				_dof(s,t) = -1;
 				_GCV(s,t) = -1;
 			}
+			
 
 			// covariates computation
 			if(regressionData_.getCovariates()->rows()!=0)
@@ -1383,11 +1414,16 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply(void)
 				}
 				_beta(s,t) = WTW_.solve(beta_rhs);
 			}
+            if (regressionData_.getCovariates()->rows() != 0)
+                isUVComputed = false;
 		}
 	}
-	if(!(isGAMData||regressionData_.isSpaceTime()) && optimizationData_.get_current_lambdaS()!=optimizationData_.get_last_lS_used())
+	if(!isGAMData &&
+	(optimizationData_.get_current_lambdaS()!=optimizationData_.get_last_lS_used() ||
+	optimizationData_.get_current_lambdaT()!=optimizationData_.get_last_lT_used()))
 	{
 		optimizationData_.set_last_lS_used(optimizationData_.get_current_lambdaS());
+		optimizationData_.set_last_lT_used(optimizationData_.get_current_lambdaT());
 	}
 	_rightHandSide = rhs; // Return rhs to original status for next apply call
 
@@ -1403,12 +1439,18 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply_iterative(void) {
     const VectorXr *obsp = regressionData_.getObservations(); // Get observations
     UInt nlocations = regressionData_.isSpaceTime() ? regressionData_.getNumberofSpaceObservations() : regressionData_.getNumberofObservations();
 
-    UInt sizeLambdaS = optimizationData_.get_size_S();
-    if (!regressionData_.isSpaceTime() && !isGAMData)
+    UInt sizeLambdaS;
+    UInt sizeLambdaT;
+    if (!isGAMData)
+    {
         sizeLambdaS=1;
+        sizeLambdaT=1;
+    }
     else
+    {
         sizeLambdaS = optimizationData_.get_size_S();
-    UInt sizeLambdaT = optimizationData_.get_size_T();
+        sizeLambdaT = optimizationData_.get_size_T();
+    }
 
     this->_solution.resize(sizeLambdaS, sizeLambdaT);
     this->_dof.resize(sizeLambdaS,sizeLambdaT);
@@ -1430,8 +1472,18 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply_iterative(void) {
             Real  J = 0, J_old = 10 ^(18);
 
             _solution(s, t) = VectorXr::Zero(2 * nnodes);
-            Real lambdaS = (optimizationData_.get_lambda_S())[s];
-            Real lambdaT = (optimizationData_.get_lambda_T())[t];
+            Real lambdaS;
+            Real lambdaT;
+            if(!isGAMData) //at the moment only space and space-time are implemented
+            {
+            	lambdaS = optimizationData_.get_current_lambdaS();
+            	lambdaT = optimizationData_.get_current_lambdaT();
+            }
+            else
+            {
+                lambdaS = (optimizationData_.get_lambda_S())[s];
+                lambdaT = (optimizationData_.get_lambda_T())[t];
+            }
 
             _rightHandSide = rhs;
             for (UInt i = 0; i < regressionData_.getInitialValues()->rows(); i++)  // p
@@ -1522,21 +1574,24 @@ MatrixXv  MixedFERegressionBase<InputHandler>::apply_iterative(void) {
 
             Rprintf("Solution found after %d iterations (max number of iterations: %d)\n", i, (regressionData_.get_maxiter()+1));
 
-            if(optimizationData_.get_loss_function()=="GCV" && (!isGAMData&&regressionData_.isSpaceTime()))
-            {
-                if (optimizationData_.get_DOF_evaluation()!="not_required")
-                {
-                    computeDegreesOfFreedom(s,t,lambdaS,lambdaT);
-                }
-                computeGeneralizedCrossValidation(s,t,lambdaS,lambdaT);
-            }
-            else
+            if(optimizationData_.get_loss_function()!="GCV" || isGAMData)
             {
                 _dof(s,t) = -1;
                 _GCV(s,t) = -1;
             }
+            if (regressionData_.getCovariates()->rows() != 0)
+                isUVComputed = false;
         }
     }
+    
+    if(!isGAMData &&
+	(optimizationData_.get_current_lambdaS()!=optimizationData_.get_last_lS_used() ||
+	optimizationData_.get_current_lambdaT()!=optimizationData_.get_last_lT_used()))
+	{
+		optimizationData_.set_last_lS_used(optimizationData_.get_current_lambdaS());
+		optimizationData_.set_last_lT_used(optimizationData_.get_current_lambdaT());
+	}
+	
     _rightHandSide = rhs;
 
     return this->_solution;
@@ -1844,6 +1899,10 @@ class MixedFERegression<GAMDataLaplace>: public MixedFERegressionBase<Regression
 	public:
 		MixedFERegression(const RegressionData & regressionData, OptimizationData & optimizationData, UInt nnodes_):
 			MixedFERegressionBase<RegressionData>(regressionData, optimizationData, nnodes_) {};
+		
+		MixedFERegression(const std::vector<Real>& mesh_time, 
+			const RegressionData& regressionData, OptimizationData& optimizationData, UInt nnodes_): 
+				MixedFERegressionBase<RegressionData>(mesh_time, regressionData, optimizationData, nnodes_){};
 
 		template<UInt ORDER, UInt mydim, UInt ndim>
 		void preapply(const MeshHandler<ORDER,mydim,ndim> & mesh)
@@ -1859,6 +1918,10 @@ class MixedFERegression<GAMDataElliptic>: public MixedFERegressionBase<Regressio
 	public:
 		MixedFERegression(const RegressionDataElliptic & regressionData, OptimizationData & optimizationData, UInt nnodes_):
 			MixedFERegressionBase<RegressionDataElliptic>(regressionData, optimizationData, nnodes_) {};
+		
+		MixedFERegression(const std::vector<Real>& mesh_time,
+                      const RegressionDataElliptic& regressionData, OptimizationData& optimizationData, UInt nnodes_): 
+                		MixedFERegressionBase<RegressionDataElliptic>(mesh_time, regressionData, optimizationData, nnodes_){};
 
 		template< UInt ORDER, UInt mydim, UInt ndim>
 		void preapply(const MeshHandler<ORDER,mydim,ndim> & mesh)
@@ -1882,6 +1945,10 @@ class MixedFERegression<GAMDataEllipticSpaceVarying>: public MixedFERegressionBa
 	public:
 		MixedFERegression(const RegressionDataEllipticSpaceVarying & regressionData, OptimizationData & optimizationData, UInt nnodes_):
 			MixedFERegressionBase<RegressionDataEllipticSpaceVarying>( regressionData, optimizationData, nnodes_) {};
+		
+		MixedFERegression(const std::vector<Real>& mesh_time, 
+			const RegressionDataEllipticSpaceVarying& regressionData, OptimizationData& optimizationData, UInt nnodes_): 		
+				MixedFERegressionBase<RegressionDataEllipticSpaceVarying>(mesh_time, regressionData, optimizationData, nnodes_){};
 
 		template<UInt ORDER, UInt mydim, UInt ndim>
 		void preapply(const MeshHandler<ORDER,mydim,ndim> & mesh)
