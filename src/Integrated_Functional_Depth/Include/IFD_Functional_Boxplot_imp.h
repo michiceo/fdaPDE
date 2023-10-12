@@ -99,6 +99,29 @@ FunctionalBoxplot<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 				++middle;
 	 	}
 	}
+
+	//Per capire quale funzione è maggiore
+
+	double differece;
+	signDepth = VectorXr::Zero(data_.cols());
+
+
+	for(Eigen::Index i = 0; i < l; ++i){
+		differece = 0;
+
+		for(Eigen::Index j = 0; j < data_.rows(); ++j){
+			differece = differece + data_(j,i) - median[j];
+	 	}
+
+		if (differece >= 0){
+			signDepth[i] = 1;		
+		}
+		else{
+			signDepth[i] = 0;		
+		}
+		
+	}
+
 }
 
 	#endif /* __IFD_FUNCTIONAL_BOXPLOT_IMP_H__ */

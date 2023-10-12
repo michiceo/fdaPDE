@@ -29,10 +29,12 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 	VectorXr thirdQuartile = functionalBoxplot.getThirdQuartile();
 	VectorXr lowerWhisker = functionalBoxplot.getLowerWhisker();
 	VectorXr upperWhisker = functionalBoxplot.getUpperWhisker();
+	VectorXr signDepth = functionalBoxplot.getSignDepth();
+
 
 	// Copy result in R memory
 	SEXP result = NILSXP;
-	result = PROTECT(Rf_allocVector(VECSXP, 9));
+	result = PROTECT(Rf_allocVector(VECSXP, 10));
 	SET_VECTOR_ELT(result, 0, Rf_allocMatrix(REALSXP, depthIntegration.dataRows(), depthIntegration.dataCols()));
 	SET_VECTOR_ELT(result, 1, Rf_allocVector(INTSXP, 1));
 	SET_VECTOR_ELT(result, 2, Rf_allocMatrix(REALSXP, depthIntegration.dataRows(), depthIntegration.dataCols()));
@@ -42,6 +44,8 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 	SET_VECTOR_ELT(result, 6, Rf_allocVector(REALSXP, thirdQuartile.size()));
 	SET_VECTOR_ELT(result, 7, Rf_allocVector(REALSXP, lowerWhisker.size()));
 	SET_VECTOR_ELT(result, 8, Rf_allocVector(REALSXP, upperWhisker.size()));
+	SET_VECTOR_ELT(result, 9, Rf_allocVector(REALSXP, signDepth.size()));
+
 
 
 	Real *rans = REAL(VECTOR_ELT(result, 0));
@@ -95,6 +99,12 @@ SEXP IFD_Skeleton(SEXP Rdata, SEXP Rorder, SEXP Rweights, SEXP Rsearch, SEXP Rme
 	for(UInt i = 0; i < upperWhisker.size(); i++)
 	{
 		rans8[i] = upperWhisker[i];
+	}
+
+	Real *rans9 = REAL(VECTOR_ELT(result, 9));
+	for(UInt i = 0; i < signDepth.size(); i++)
+	{
+		rans9[i] = signDepth[i];
 	}
 
 	UNPROTECT(1);

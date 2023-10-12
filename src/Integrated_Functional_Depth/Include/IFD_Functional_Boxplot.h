@@ -17,6 +17,7 @@ private:
 	VectorXr thirdQuartile;
 	VectorXr lowerWhisker;
 	VectorXr upperWhisker;
+	VectorXr signDepth;
 
 public:
 	//! A constructor
@@ -39,6 +40,8 @@ public:
 	const VectorXr getLowerWhisker() const {return lowerWhisker;}
 	//! A method returning the upper whisker
 	const VectorXr getUpperWhisker() const {return upperWhisker;}
+	//! A method returning the signDepth
+	const VectorXr getSignDepth() const {return signDepth;}
     //! A method returning the data
 	const VectorXr getData() const {return depthIntegration_.data();}
 };

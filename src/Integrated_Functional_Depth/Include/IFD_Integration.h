@@ -4,12 +4,14 @@
 #include <string>
 #include <utility>
 #include <numeric>
+#include <math.h>
 
 #include "../../FdaPDE.h"
 #include "IFD_Data.h" // for R/C++ interface
 #include "IFD_Depth.h"
 #include "IFD_Depth_Factory.h"
 #include "../../FE_Assemblers_Solvers/Include/Integration.h"
+
 
 // This file contains data informations for the computation of the Integrated Functional Depth
 
@@ -22,9 +24,14 @@ private:
 	MeshHandler<ORDER, mydim, ndim> mesh_;
 	std::string d_tag; // tag in order to choose the depth
 	Eigen::Matrix<Real, Integrator::NNODES, EL_NNODES> PsiQuad_;
+	//Eigen::Matrix<Real, Integrator::NNODES, 1> x_cap;
 
 	//! A method to compute the matrix which evaluates the basis function at the quadrature Integrator::NNODES
 	void fillPsiQuad();
+
+	
+
+
 
 public:
 	//! A constructor: it delegates IFDData and MeshHandler constructors.
@@ -32,6 +39,8 @@ public:
 
 	//! A method to compute the weighted integral of the depth referred to the data.
 	const VectorXr integrate_depth(const MatrixXr& X) const;
+
+	//void fillXCap(const Eigen::Matrix<Real, EL_NNODES, 1>& sub_x);
 
 	// Getters
 	//! A method to access the data. It calls the same method of IFDData class.
@@ -67,6 +76,7 @@ public:
 	// Getters for matrices
 	//! A method returning the PsiQuad_ matrix.
 	const Eigen::Matrix<Real, Integrator::NNODES, EL_NNODES>& getPsiQuad() const {return PsiQuad_;}
+	//const Eigen::Matrix<Real, Integrator::NNODES, 1> getX_cap() const {return x_cap;}
 };
 
 #include "IFD_Integration_imp.h"

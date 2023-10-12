@@ -69,20 +69,20 @@ plot.image.diff_uw_q3.2D = function(func,uw_q3, max, min){
 #if(3D)
 
 plot.diff_lw_q1.3D = function(func, lw_q1, max, min){
-  if(class(func$FEMbasis$mesh)!='mesh.2.5D' & class(func$FEMbasis$mesh)!='mesh.3D')
+  if(class(func$FEMbasis$mesh)!='mesh.2.5D' && class(func$FEMbasis$mesh)!='mesh.3D')
     stop('This function is implemented only for 2.5D/3D mesh FEM objects')
 
   diff = func$coeff - lw_q1$coeff
   func$coeff[which(diff > 0)] = NA
 
-  plot(func, max, min)
+  plot(func)
 }
 
 plot.diff_uw_q3.3D = function(func, uw_q3, max, min){
-  if(class(func$FEMbasis$mesh)!='mesh.2.5D' & class(func$FEMbasis$mesh)!='mesh.3D')
+  if(class(func$FEMbasis$mesh)!='mesh.2.5D' && class(func$FEMbasis$mesh)!='mesh.3D')
     stop('This function is implemented only for 2.5D/3D mesh FEM objects')
   diff = uw_q3$coeff - func$coeff
   func$coeff[which(diff > 0)] = NA
 
-  plot(func, max, min)
+  plot(func)
 }

@@ -24,7 +24,9 @@ IFDData::setData(SEXP Rdata)
 	  	for(auto j=0; j<p_ ; ++j)
 	  	{
 	  		data_(i,j)=REAL(Rdata)[i+n_*j];
+			//Rprintf("%f ", data_(i,j));
 	  	}
+		//Rprintf("\n");
 	  }
   }
 }
@@ -47,7 +49,12 @@ IFDData::setWeights(SEXP Rweights)
 	  	for(auto j=0; j<p_ ; ++j)
 	  	{
 	  		weights_(i,j)=REAL(Rweights)[i+n_*j];
+		//	Rprintf("%f", weights_(i,j));
+		//	Rprintf(" ");
+
 	  	}
+		//Rprintf("\n");
+
 	  }
   }
 }

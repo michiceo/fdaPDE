@@ -15,6 +15,8 @@ public:
 			return make_unique<MHRD>(m);
 		else if(d == "MBD")
 			return make_unique<MBD>(m);
+		else if(d == "FMD")
+			return make_unique<FMD>(m);
 		else
 		{
 			Rprintf("Unavailable depth choice - using Modified Band Depth");

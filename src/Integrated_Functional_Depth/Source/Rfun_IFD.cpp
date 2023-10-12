@@ -31,7 +31,7 @@ extern "C" {
         UInt order = INTEGER(Rorder)[0];
         UInt mydim = INTEGER(Rmydim)[0];
         UInt ndim  = INTEGER(Rndim)[0];
-        
+
         std::string depth_choice = CHAR(STRING_ELT(Rdepth, 0));
 
 	if(order== 1 && mydim==2 && ndim==2)
@@ -46,6 +46,11 @@ extern "C" {
 		return(IFD_Skeleton<1, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	else if(order == 2 && mydim==3 && ndim==3)
 		return(IFD_Skeleton<2, 3, 3>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
+	// EC - 08/10 - aggiungo per chiamare lo skeleton per il caso 1.5D
+	else if(order == 1 && mydim== 1/*2*/ && ndim==2)
+		return(IFD_Skeleton<1, 1, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
+	else if(order == 2 && mydim==1 && ndim==2)
+		return(IFD_Skeleton<2, 1, 2>(Rdata, Rorder, Rweights, Rsearch, Rmesh, depth_choice));
 	
 	return(NILSXP);
     }

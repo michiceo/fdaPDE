@@ -51,9 +51,12 @@
 #' sol <- IFD.FEM(data = data, FEMbasis = FEMbasis, depth_choice = "MHRD")
 #'
 
-IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choice, plot = FALSE, func = data[,1])
+IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choice, plot = FALSE, func = 0)
 {
-  if(class(FEMbasis$mesh) == "mesh.2D"){
+  if(class(FEMbasis$mesh) == "mesh.1.5D"){
+    ndim = 2
+    mydim = 1 
+  }else if(class(FEMbasis$mesh) == "mesh.2D"){
     ndim = 2
     mydim = 2
   }else if(class(FEMbasis$mesh) == "mesh.2.5D"){
@@ -71,9 +74,9 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
     search=1
   }else if(search=="tree"){
     search=2
-  }else if(search=="walking" & class(FEMbasis$mesh) == "mesh.2.5D"){
-  stop("walking search is not available for mesh class mesh.2.5D.")
-  }else if(search=="walking" & class(FEMbasis$mesh) != "mesh.2.5D"){
+  }else if(search=="walking" && class(FEMbasis$mesh) == "mesh.2.5D"){
+    stop("walking search is not available for mesh class mesh.2.5D.")
+  }else if(search=="walking" && class(FEMbasis$mesh) != "mesh.2.5D"){
     search=3
   }else{
     stop("'search' must belong to the following list: 'naive', 'tree' or 'walking'.")
@@ -87,12 +90,17 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
 
     w <- function(nfun, npoints){
       phi_num <- nfun - rowSums(is.na(data))
-      phi_den <- apply(data, 2, function(x) sum(phi_num[!is.na(x)]))
+      phi_den  <- apply(data, 2, function(x) sum(phi_num[!is.na(x)]))
 
       output <- matrix(0, npoints, nfun)
       for(i in 1:nfun){
         for(j in 1:npoints){
-          output[j, i] <- phi_num[j]/phi_den[i]
+          if(is.na(data[j,i])){
+            output[j,i] <- 0
+          }
+          else{
+            output[j,i] <- (phi_num[j]*npoints)/(phi_den[i])
+          }
         }
       }
 
@@ -105,6 +113,7 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
     w <- weights(FEMbasis$mesh$nodes)
   }
 
+  
   checkParametersIFD(data, FEMbasis, search, depth_choice)
 
   ## Coverting to format for internal usage
@@ -116,7 +125,11 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
 
   ###################### C++ Code Execution #########################################################
   bigsol = NULL
-  if(class(FEMbasis$mesh) == 'mesh.2D'){
+  if(class(FEMbasis$mesh) == 'mesh.1.5D'){
+
+    bigsol = CPP_FEM_1.5D.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
+
+  } else if(class(FEMbasis$mesh) == 'mesh.2D'){
 
     bigsol = CPP_FEM.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
 
@@ -125,6 +138,7 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
     bigsol = CPP_FEM.manifold.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
 
   } else if(class(FEMbasis$mesh) == 'mesh.3D'){
+   
     bigsol = CPP_FEM.volume.IFD(data, FEMbasis, ndim, mydim, weights, search, depth_choice)
   }
 
@@ -139,6 +153,7 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
   thirdQuartile   = bigsol[[7]]
   lowerWhisker    = bigsol[[8]]
   upperWhisker    = bigsol[[9]]
+  signDepth       = bigsol[[10]]
 
   if(plot){
     if(class(FEMbasis$mesh) == "mesh.2D"){
@@ -158,20 +173,22 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
       plot.image.diff_uw_q3.2D(FEM(func, FEMbasis), FEM(thirdQuartile, FEMbasis ), max, min)
       plot.image.diff_uw_q3.2D(FEM(func, FEMbasis), FEM(upperWhisker, FEMbasis ), max, min)
     }else{
-      max<-max(data)
-      min<-min(data)
+      max<-max(data[!is.na(data)]) 
+      min<-min(data[!is.na(data)])
 
-      plot(FEM(median, FEMbasis), max, min)
-      plot(FEM(firstQuartile, FEMbasis), max, min)
-      plot(FEM(thirdQuartile, FEMbasis), max, min)
-      plot(FEM(lowerWhisker, FEMbasis), max, min)
-      plot(FEM(upperWhisker, FEMbasis), max, min)
+      plot.FEM(FEM(median, FEMbasis), max, min)
+      plot.FEM(FEM(firstQuartile, FEMbasis), max, min)
+      plot.FEM(FEM(thirdQuartile, FEMbasis), max, min)
+      plot.FEM(FEM(lowerWhisker, FEMbasis), max, min)
+      plot.FEM(FEM(upperWhisker, FEMbasis), max, min)
 
-      plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(firstQuartile, FEMbasis), max, min)
-      plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(thirdQuartile, FEMbasis), max, min)
-      plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(lowerWhisker, FEMbasis), max, min)
-      plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(upperWhisker, FEMbasis), max, min)
-      plot(FEM(func, FEMbasis), max, min)
+      if(func[1] != 0){
+        plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(firstQuartile, FEMbasis), max, min)
+        plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(thirdQuartile, FEMbasis), max, min)
+        plot.diff_lw_q1.3D(FEM(func, FEMbasis), FEM(lowerWhisker, FEMbasis), max, min)
+        plot.diff_uw_q3.3D(FEM(func, FEMbasis), FEM(upperWhisker, FEMbasis), max, min)
+        plot(FEM(func, FEMbasis))
+      }
     }
   }
 
@@ -179,6 +196,6 @@ IFD.FEM <- function(data, FEMbasis, weights = NULL, search = "tree", depth_choic
     # stop("integral of weight function != 1. Give another weight function.")
 
   reslist = list(data = data, order = order, weights = weights, ifd = ifd, median = median,
-    firstQuartile = firstQuartile, thirdQuartile = thirdQuartile, lowerWhisker = lowerWhisker, upperWhisker = upperWhisker)
+    firstQuartile = firstQuartile, thirdQuartile = thirdQuartile, lowerWhisker = lowerWhisker, upperWhisker = upperWhisker, signDepth = signDepth)
   return(reslist)
 }
