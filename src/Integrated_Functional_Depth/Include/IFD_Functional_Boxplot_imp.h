@@ -13,7 +13,7 @@ FunctionalBoxplot<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 	const VectorXr& ifd_sorted = ifd;
 	const MatrixXr& data_ = depthIntegration_.data();
 	int middle;
-	size_t l = data_.cols();
+	int l = data_.cols();
 
 	std::multimap<Real, VectorXr> ifdToFunction;
 	std::map<int, VectorXr> outlier;
@@ -91,11 +91,12 @@ FunctionalBoxplot<ORDER, mydim, ndim>::calculateFunctionalBoxplot()
 		middle = 0;
 	 	for (auto it3 = ifdToFunction.begin(); middle < l/2 && it3 != ifdToFunction.end(); ++it3){
 
-	 		if(lowerWhisker[i] > it3->second[i] && outlier.find(middle) == outlier.end())
+	 		if(lowerWhisker[i] > it3->second[i] && outlier.find(middle) == outlier.end()){
 	 			lowerWhisker[i] = it3->second[i];
-	 		if(upperWhisker[i] < it3->second[i] && outlier.find(middle) == outlier.end())
+			}
+	 		if(upperWhisker[i] < it3->second[i] && outlier.find(middle) == outlier.end()){
 	 			upperWhisker[i] = it3->second[i];
-
+			}
 				++middle;
 	 	}
 	}

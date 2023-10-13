@@ -12,15 +12,15 @@ public:
 	createDepth(const MatrixXr& m, const std::string& d)
 	{
 		if(d == "MHRD")
-			return make_unique<MHRD>(m);
+			return std::make_unique<MHRD>(m);
 		else if(d == "MBD")
-			return make_unique<MBD>(m);
+			return std::make_unique<MBD>(m);
 		else if(d == "FMD")
-			return make_unique<FMD>(m);
+			return std::make_unique<FMD>(m);
 		else
 		{
 			Rprintf("Unavailable depth choice - using Modified Band Depth");
-			return make_unique<MBD>(m);
+			return std::make_unique<MBD>(m);
 		}
 	}
 };
